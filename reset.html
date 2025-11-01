@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reiniciar Sistema - HR Organic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a2332 0%, #2d3e50 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        h3 {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .warning {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: #fca5a5;
+        }
+
+        .info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: #93c5fd;
+            text-align: left;
+        }
+
+        .info h3 {
+            margin-bottom: 10px;
+            color: #60a5fa;
+        }
+
+        .info ul {
+            margin-left: 20px;
+        }
+
+        .info li {
+            margin: 8px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #2D7A4F 0%, #3a9d5d 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 8px 20px rgba(45, 122, 79, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(45, 122, 79, 0.4);
+        }
+
+        button.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #86efac;
+            display: block;
+        }
+
+        .result.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="bi bi-arrow-clockwise"></i> Reiniciar Sistema HR Organic</h1>
+        <p>Esta herramienta te permite reinicializar todos los datos del sistema, incluyendo el nuevo sistema de usuarios.</p>
+
+        <div class="warning">
+            <strong><i class="bi bi-exclamation-triangle-fill"></i> ADVERTENCIA:</strong> Esta acción eliminará TODOS los datos almacenados localmente, incluyendo empleados, nóminas, recolecciones, etc. No se puede deshacer.
+        </div>
+
+        <div class="info">
+            <h3><i class="bi bi-clipboard-check"></i> Después de reiniciar se creará:</h3>
+            <ul>
+                <li><strong>Usuario admin:</strong> admin / 1234</li>
+                <li><strong>Rol:</strong> Administrador (acceso completo)</li>
+                <li><strong>Datos de ejemplo:</strong> Empleados, departamentos, cargos, etc.</li>
+                <li><strong>Módulo de usuarios:</strong> Gestión de Usuarios activo</li>
+            </ul>
+        </div>
+
+        <button onclick="resetearSistema()"><i class="bi bi-trash3"></i> Reiniciar Sistema</button>
+        <button class="secondary" onclick="volverLogin()">← Volver al Login</button>
+
+        <div id="resultado" class="result"></div>
+    </div>
+
+    <script>
+        function resetearSistema() {
+            if (!confirm('¿Estás seguro? Esto eliminará TODOS los datos.')) {
+                return;
+            }
+
+            try {
+                // Limpiar localStorage completamente
+                localStorage.clear();
+
+                // Limpiar sessionStorage
+                sessionStorage.clear();
+
+                // Mostrar mensaje de éxito
+                const resultado = document.getElementById('resultado');
+                resultado.className = 'result success';
+                resultado.innerHTML = `
+                    <h3><i class="bi bi-check-circle-fill"></i> Sistema reiniciado exitosamente</h3>
+                    <p>Redirigiendo al login en 3 segundos...</p>
+                `;
+
+                // Redirigir al login
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+
+            } catch (error) {
+                const resultado = document.getElementById('resultado');
+                resultado.className = 'result error';
+                resultado.innerHTML = `
+                    <h3><i class="bi bi-x-circle-fill"></i> Error al reiniciar</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        function volverLogin() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

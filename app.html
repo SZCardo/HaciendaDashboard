@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión Empresarial Premium - HR Organic</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Anime.js -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Toastify -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-layout">
+
+        <aside class="sidebar">
+            <h2><img src="img/logohacienda.png" alt="Hacienda Rhin" class="logo-img"> HR Organic</h2>
+            <div id="buttonContainer"></div>
+            <button id="logoutBtn" class="logout-btn">
+                <i class="bi bi-box-arrow-right"></i> Salir
+            </button>
+        </aside>
+
+        <div class="main-container">
+
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="header-search">
+                        <i class="bi bi-search"></i>
+                        <input type="text" placeholder="Buscar en la tabla actual..." id="globalSearchInput">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" id="themeToggleBtn">
+                        <i class="bi bi-sun-fill"></i>
+                        <i class="bi bi-moon-fill"></i>
+                    </button>
+                    <button class="notification-bell" id="notificationBell">
+                        <i class="bi bi-bell-fill"></i>
+                        <div class="notification-dot" id="notificationDot"></div>
+                    </button>
+                    <div class="user-profile" id="userProfile">
+                        <img src="https://ui-avatars.com/api/?name=Usuario+Admin&background=2D7A4F&color=fff&bold=true" alt="Avatar">
+                    </div>
+                </div>
+            </header>
+
+            <main class="content-area" id="contentArea">
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 0: DASHBOARD MEJORADO -->
+                <!-- ============================================= -->
+                <div id="interface-0" class="interface active">
+                    <h2>¡Bienvenido de Nuevo! <i class="bi bi-flower1" style="color: var(--primary);"></i></h2>
+                    <p>Resumen de la actividad reciente de tu hacienda.</p>
+
+                    <div class="stats-grid">
+                         <div class="stat-card primary">
+                            <div class="icon"><i class="bi bi-cash-stack"></i></div>
+                            <div class="label">Balance Total (Nómina Pagada)</div>
+                            <div class="value" id="stat-balance">$0.00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background-color: #EDE9FE; color: #7C3AED;"><i class="bi bi-people-fill"></i></div>
+                            <div class="label">Total Empleados Activos</div>
+                            <div class="value" id="stat-empleados">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background-color: #FEF3C7; color: #D97706;"><i class="bi bi-box-seam-fill"></i></div>
+                            <div class="label">Valor Total del Inventario</div>
+                            <div class="value" id="stat-inventario">$0.00</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="icon" style="background-color: #DEF7EC; color: #10B981;"><i class="bi bi-basket-fill"></i></div>
+                            <div class="label">Kg Recolectados Hoy</div>
+                            <div class="value" id="stat-recoleccion">0 Kg</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="chart-container-large">
+                            <div class="chart-header">
+                                <h3>Flujo de Caja (Últimos 6 meses)</h3>
+                                <div class="chart-legend">
+                                    <span class="legend-item-sales">Ventas</span>
+                                    <span class="legend-item-payroll">Nómina</span>
+                                </div>
+                            </div>
+                            <div id="mainSalesChart"></div>
+                        </div>
+                        <div class="chart-container-small">
+                            <h3>Composición de Inventario</h3>
+                            <div id="productDonutChart"></div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid-secondary">
+                        <div class="weather-widget-container">
+                            <h3>Clima en la Hacienda</h3>
+                            <div class="weather-main">
+                                <i class="bi bi-question-diamond" id="weather-icon"></i>
+                                <div class="weather-info">
+                                    <span id="weather-temp">--°C</span>
+                                    <span id="weather-desc">Cargando...</span>
+                                </div>
+                            </div>
+                            <div class="weather-details">
+                                <span id="weather-location">Manizales, CO</span>
+                            </div>
+                        </div>
+
+                        <div class="quick-actions-container">
+                            <h3>Acciones Rápidas</h3>
+                            <button class="quick-action-btn" onclick="showInterface('interface-4')">
+                                <i class="bi bi-person-plus-fill"></i>
+                                <span>Nuevo Empleado</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="showInterface('interface-10')">
+                                <i class="bi bi-basket-fill"></i>
+                                <span>Nueva Recolección</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="showInterface('interface-12')">
+                                <i class="bi bi-credit-card-fill"></i>
+                                <span>Nueva Venta</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="showInterface('interface-6')">
+                                <i class="bi bi-cash-coin"></i>
+                                <span>Calcular Nómina</span>
+                            </button>
+                        </div>
+
+                        <div class="activity-feed-container">
+                            <h3>Actividad Reciente</h3>
+                            <ul class="activity-feed" id="activityFeed">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 2: DEPARTAMENTOS -->
+                <!-- ============================================= -->
+                <div id="interface-2" class="interface" data-table="departamentos">
+                    <h3><i class="bi bi-building"></i> Gestión de Departamentos</h3>
+                    <button class="crud-button create-button" data-table="departamentos"><i class="bi bi-plus-lg"></i> Crear Nuevo Departamento</button>
+                    <div id="form-container-departamentos" class="crud-form-container">
+                        <h4>Formulario de Departamento</h4>
+                        <form id="form-departamentos" data-table="departamentos">
+                            <input type="hidden" id="departamentos-id">
+                            <label>Nombre:</label><input type="text" id="departamentos-nombre" required>
+                            <label>Descripción:</label><textarea id="departamentos-descripcion"></textarea>
+                            <label>Estado:</label>
+                            <select id="departamentos-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option><option value="eliminado">Eliminado</option></select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                         <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>DESCRIPCIÓN</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-departamentos"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 3: CARGOS -->
+                <!-- ============================================= -->
+                <div id="interface-3" class="interface" data-table="cargos">
+                     <h3><i class="bi bi-briefcase-fill"></i> Gestión de Cargos</h3>
+                    <button class="crud-button create-button" data-table="cargos"><i class="bi bi-plus-lg"></i> Crear Nuevo Cargo</button>
+                    <div id="form-container-cargos" class="crud-form-container">
+                        <h4>Formulario de Cargo</h4>
+                        <form id="form-cargos" data-table="cargos">
+                            <input type="hidden" id="cargos-id">
+                            <label>Nombre:</label><input type="text" id="cargos-nombre" required>
+                            <label>Salario Base:</label><input type="number" step="0.01" id="cargos-salario_base" required placeholder="Ej: 63000">
+                            <label>Departamento:</label>
+                            <select id="cargos-id_departamento" required></select>
+                            <label>Estado:</label>
+                            <select id="cargos-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option><option value="eliminado">Eliminado</option></select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>SALARIO BASE</th><th>DEPARTAMENTO</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-cargos"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 4: EMPLEADOS (AMPLIADO) -->
+                <!-- ============================================= -->
+                <div id="interface-4" class="interface" data-table="empleados">
+                    <h3><i class="bi bi-people-fill"></i> Gestión de Empleados</h3>
+                    <button class="crud-button create-button" data-table="empleados"><i class="bi bi-plus-lg"></i> Crear Nuevo Empleado</button>
+                    <div id="form-container-empleados" class="crud-form-container">
+                        <h4>Formulario de Empleado</h4>
+                        <form id="form-empleados" data-table="empleados">
+                            <input type="hidden" id="empleados-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Nombre:</label><input type="text" id="empleados-nombre" required>
+                                </div>
+                                <div>
+                                    <label>Apellido:</label><input type="text" id="empleados-apellido" required>
+                                </div>
+                                <div>
+                                    <label>Cédula:</label><input type="text" id="empleados-cedula" required>
+                                </div>
+                                <div>
+                                    <label>Teléfono:</label><input type="tel" id="empleados-telefono">
+                                </div>
+                                <div style="grid-column: 1 / -1;">
+                                    <label>Dirección:</label><input type="text" id="empleados-direccion">
+                                </div>
+                                <div>
+                                    <label>Cargo:</label>
+                                    <select id="empleados-id_cargo" required></select>
+                                </div>
+                                <div>
+                                    <label>Fecha Ingreso:</label><input type="date" id="empleados-fecha_ingreso" required>
+                                </div>
+                                <div>
+                                    <label>EPS:</label><input type="text" id="empleados-eps">
+                                </div>
+                                <div>
+                                    <label>AFP:</label><input type="text" id="empleados-afp">
+                                </div>
+                                <div>
+                                    <label>Banco:</label><input type="text" id="empleados-banco">
+                                </div>
+                                <div>
+                                    <label>N° Cuenta:</label><input type="text" id="empleados-numero_cuenta">
+                                </div>
+                                <div>
+                                    <label>Salario Actual:</label><input type="number" step="0.01" id="empleados-salario_actual" required>
+                                </div>
+                                <div>
+                                    <label>Estado:</label>
+                                    <select id="empleados-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option><option value="eliminado">Eliminado</option></select>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>APELLIDO</th><th>CÉDULA</th><th>CARGO</th><th>SALARIO</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-empleados"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 5: ASISTENCIA -->
+                <!-- ============================================= -->
+                <div id="interface-5" class="interface" data-table="asistencia">
+                    <h3><i class="bi bi-calendar-check-fill"></i> Gestión de Asistencia</h3>
+                    <button class="crud-button create-button" data-table="asistencia"><i class="bi bi-plus-lg"></i> Registrar Asistencia</button>
+                    <div id="form-container-asistencia" class="crud-form-container">
+                        <h4>Formulario de Asistencia</h4>
+                        <form id="form-asistencia" data-table="asistencia">
+                            <input type="hidden" id="asistencia-id">
+                            <label>Empleado:</label>
+                            <select id="asistencia-id_empleado" required></select>
+                            <label>Fecha:</label><input type="date" id="asistencia-fecha" required>
+                            <label>Hora Entrada:</label><input type="time" id="asistencia-hora_entrada" required>
+                            <label>Hora Salida:</label><input type="time" id="asistencia-hora_salida">
+                            <label>Estado:</label>
+                            <select id="asistencia-estado"><option value="presente">Presente</option><option value="ausente">Ausente</option><option value="tarde">Tarde</option></select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>EMPLEADO</th><th>FECHA</th><th>H. ENTRADA</th><th>H. SALIDA</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-asistencia"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 6: NÓMINA (MEJORADO) -->
+                <!-- ============================================= -->
+                <div id="interface-6" class="interface" data-table="nomina">
+                    <h3><i class="bi bi-cash-coin"></i> Cálculo y Gestión de Nómina</h3>
+                    
+                    <!-- Sección de Cálculo -->
+                    <div class="nomina-calculator">
+                        <h4><i class="bi bi-calculator"></i> Calcular Nómina del Periodo</h4>
+                        <div class="nomina-calc-grid">
+                            <div>
+                                <label>Empleado (Opcional - Dejar en blanco para todos):</label>
+                                <select id="nomina-empleado-calc">
+                                    <option value="">Todos los Empleados</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Fecha Inicio:</label>
+                                <input type="date" id="nomina-periodo-inicio-calc" required>
+                            </div>
+                            <div>
+                                <label>Fecha Fin:</label>
+                                <input type="date" id="nomina-periodo-fin-calc" required>
+                            </div>
+                            <button id="btnCalcularNomina" class="crud-button create-button">
+                                <i class="bi bi-calculator-fill"></i> Calcular Nómina
+                            </button>
+                        </div>
+
+                        <!-- Card de Resultado -->
+                        <div id="nomina-result-card" class="nomina-result-card" style="display: none;">
+                            <div class="result-header">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Nómina Calculada</span>
+                            </div>
+                            <div class="result-body">
+                                <div class="result-amount">
+                                    <span class="result-label">Total a Pagar:</span>
+                                    <span class="result-value" id="nomina-total-pagar">$0,00</span>
+                                </div>
+                                <div class="result-employees">
+                                    <span id="nomina-empleados-count">0 empleados</span>
+                                </div>
+                            </div>
+                            <button class="result-detail-btn" id="btnVerDetalles">
+                                <i class="bi bi-eye-fill"></i> Ver información específica
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="crud-button create-button" data-table="nomina"><i class="bi bi-plus-lg"></i> Crear Registro Manual</button>
+                    
+                    <div id="form-container-nomina" class="crud-form-container">
+                        <h4>Formulario de Nómina</h4>
+                        <form id="form-nomina" data-table="nomina">
+                            <input type="hidden" id="nomina-id">
+                            <div class="form-grid">
+                                <div style="grid-column: 1 / -1;">
+                                    <label>Empleado:</label>
+                                    <select id="nomina-id_empleado" required></select>
+                                </div>
+                                <div>
+                                    <label>Periodo Inicio:</label><input type="date" id="nomina-periodo_inicio" required>
+                                </div>
+                                <div>
+                                    <label>Periodo Fin:</label><input type="date" id="nomina-periodo_fin" required>
+                                </div>
+                                <div>
+                                    <label>Pago Recolección ($):</label><input type="number" step="0.01" id="nomina-pago_recoleccion" value="0">
+                                </div>
+                                <div>
+                                    <label>Pago Jornales ($):</label><input type="number" step="0.01" id="nomina-pago_jornales" value="0">
+                                </div>
+                                <div>
+                                    <label>Pago Horas Extras ($):</label><input type="number" step="0.01" id="nomina-pago_horas_extras" value="0">
+                                </div>
+                                <div>
+                                    <label>Otros Ingresos ($):</label><input type="number" step="0.01" id="nomina-otros_ingresos" value="0">
+                                </div>
+                                <div>
+                                    <label>Total Devengado ($):</label><input type="number" step="0.01" id="nomina-total_devengado" readonly>
+                                </div>
+                                <div>
+                                    <label>Aporte Salud ($):</label><input type="number" step="0.01" id="nomina-aporte_salud" readonly>
+                                </div>
+                                <div>
+                                    <label>Aporte Pensión ($):</label><input type="number" step="0.01" id="nomina-aporte_pension" readonly>
+                                </div>
+                                <div>
+                                    <label>Descuento Alimentación ($):</label><input type="number" step="0.01" id="nomina-descuento_alimentacion" value="0">
+                                </div>
+                                <div>
+                                    <label>Préstamos ($):</label><input type="number" step="0.01" id="nomina-prestamos" value="0">
+                                </div>
+                                <div>
+                                    <label>Adelantos ($):</label><input type="number" step="0.01" id="nomina-adelantos" value="0">
+                                </div>
+                                <div>
+                                    <label>Otras Deducciones ($):</label><input type="number" step="0.01" id="nomina-otras_deducciones" value="0">
+                                </div>
+                                <div>
+                                    <label>Total Deducido ($):</label><input type="number" step="0.01" id="nomina-total_deducido" readonly>
+                                </div>
+                                <div>
+                                    <label>Neto Pagado ($):</label><input type="number" step="0.01" id="nomina-neto_pagado" readonly>
+                                </div>
+                                <div>
+                                    <label>Estado:</label>
+                                    <select id="nomina-estado"><option value="calculado">Calculado</option><option value="pagado">Pagado</option><option value="pendiente">Pendiente</option><option value="anulado">Anulado</option></select>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>EMPLEADO</th><th>P. INICIO</th><th>P. FIN</th><th>DEVENGADO</th><th>DEDUCIDO</th><th>NETO</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-nomina"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 7: TIPOS PRODUCTO -->
+                <!-- ============================================= -->
+                <div id="interface-7" class="interface" data-table="tipos_producto">
+                    <h3><i class="bi bi-tags-fill"></i> Gestión de Tipos Producto</h3>
+                    <button class="crud-button create-button" data-table="tipos_producto"><i class="bi bi-plus-lg"></i> Crear Nuevo Tipo Producto</button>
+                    <div id="form-container-tipos_producto" class="crud-form-container">
+                        <h4>Formulario de Tipo Producto</h4>
+                        <form id="form-tipos_producto" data-table="tipos_producto">
+                             <input type="hidden" id="tipos_producto-id">
+                            <label>Nombre:</label><input type="text" id="tipos_producto-nombre" required>
+                            <label>Categoría:</label><input type="text" id="tipos_producto-categoria">
+                            <label>Unidad Medida:</label><input type="text" id="tipos_producto-unidad_medida" placeholder="Ej: Kg, Lb, Unidad">
+                            <label>Estado:</label>
+                            <select id="tipos_producto-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option><option value="eliminado">Eliminado</option></select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                         <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>CATEGORÍA</th><th>UNIDAD MEDIDA</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-tipos_producto"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 8: PRODUCTOS -->
+                <!-- ============================================= -->
+                <div id="interface-8" class="interface" data-table="productos">
+                    <h3><i class="bi bi-box-seam-fill"></i> Gestión de Productos</h3>
+                    <button class="crud-button create-button" data-table="productos"><i class="bi bi-plus-lg"></i> Crear Nuevo Producto</button>
+                    <div id="form-container-productos" class="crud-form-container">
+                        <h4>Formulario de Producto</h4>
+                        <form id="form-productos" data-table="productos">
+                            <input type="hidden" id="productos-id">
+                            <label>Nombre:</label><input type="text" id="productos-nombre" required>
+                            <label>Tipo de Producto:</label>
+                            <select id="productos-id_tipo_producto" required></select>
+                            <label>Precio Unitario:</label><input type="number" step="0.01" id="productos-precio_unitario" required>
+                            <label>Stock Actual:</label><input type="number" id="productos-stock_actual" required>
+                            <label>Estado:</label>
+                            <select id="productos-estado"><option value="disponible">Disponible</option><option value="agotado">Agotado</option><option value="eliminado">Eliminado</option></select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>TIPO</th><th>PRECIO UNIT.</th><th>STOCK</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-productos"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 9: PROVEEDORES -->
+                <!-- ============================================= -->
+                <div id="interface-9" class="interface" data-table="proveedores">
+                    <h3><i class="bi bi-truck"></i> Gestión de Proveedores</h3>
+                    <button class="crud-button create-button" data-table="proveedores"><i class="bi bi-plus-lg"></i> Crear Nuevo Proveedor</button>
+                    <div id="form-container-proveedores" class="crud-form-container">
+                        <h4>Formulario de Proveedor</h4>
+                        <form id="form-proveedores" data-table="proveedores">
+                            <input type="hidden" id="proveedores-id">
+                            <label>Nombre:</label><input type="text" id="proveedores-nombre" required>
+                            <label>Contacto:</label><input type="text" id="proveedores-contacto">
+                            <label>Teléfono:</label><input type="tel" id="proveedores-telefono">
+                            <label>RUC/NIT:</label><input type="text" id="proveedores-ruc_nit">
+                            <label>Estado:</label>
+                            <select id="proveedores-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option><option value="eliminado">Eliminado</option></select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>CONTACTO</th><th>TELÉFONO</th><th>RUC/NIT</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-proveedores"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 10: RECOLECCIÓN (MEJORADO CON CAMPAMENTOS) -->
+                <!-- ============================================= -->
+                <div id="interface-10" class="interface" data-table="recoleccion">
+                    <h3><i class="bi bi-basket-fill"></i> Registro de Recolección</h3>
+                    <button class="crud-button create-button" data-table="recoleccion"><i class="bi bi-plus-lg"></i> Registrar Nueva Recolección</button>
+                    <div id="form-container-recoleccion" class="crud-form-container">
+                        <h4>Formulario de Recolección</h4>
+                        <form id="form-recoleccion" data-table="recoleccion">
+                            <input type="hidden" id="recoleccion-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Fecha:</label><input type="date" id="recoleccion-fecha" required>
+                                </div>
+                                <div>
+                                    <label>Campamento:</label>
+                                    <select id="recoleccion-id_campamento" required></select>
+                                </div>
+                                <div>
+                                    <label>Empleado (Recolector):</label>
+                                    <select id="recoleccion-id_empleado" required></select>
+                                </div>
+                                <div>
+                                    <label>Módulo:</label>
+                                    <input type="text" id="recoleccion-modulo" placeholder="Ej: 101, 103, 105">
+                                </div>
+                                <div>
+                                    <label>Lote:</label>
+                                    <input type="text" id="recoleccion-lote" required placeholder="Ej: 312, 314">
+                                </div>
+                                <div>
+                                    <label>Producto:</label>
+                                    <select id="recoleccion-id_producto" required></select>
+                                </div>
+                                <div>
+                                    <label>Cantidad (Kg):</label>
+                                    <input type="number" step="0.01" id="recoleccion-cantidad_kg" required placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label>Precio KG ($):</label>
+                                    <input type="number" step="0.01" id="recoleccion-precio_kg" readonly>
+                                </div>
+                                <div>
+                                    <label>Total ($):</label>
+                                    <input type="number" step="0.01" id="recoleccion-total" readonly>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>FECHA</th><th>CAMPAMENTO</th><th>EMPLEADO</th><th>LOTE</th><th>MÓDULO</th><th>KG</th><th>TOTAL ($)</th><th>ACCIONES</th></tr></thead><tbody id="table-body-recoleccion"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 11: CLIENTES -->
+                <!-- ============================================= -->
+                <div id="interface-11" class="interface" data-table="clientes">
+                    <h3><i class="bi bi-person-check-fill"></i> Gestión de Clientes</h3>
+                    <button class="crud-button create-button" data-table="clientes"><i class="bi bi-plus-lg"></i> Crear Nuevo Cliente</button>
+                    <div id="form-container-clientes" class="crud-form-container">
+                        <h4>Formulario de Cliente</h4>
+                        <form id="form-clientes" data-table="clientes">
+                            <input type="hidden" id="clientes-id">
+                            <label>Nombre:</label><input type="text" id="clientes-nombre" required>
+                            <label>Apellido:</label><input type="text" id="clientes-apellido" required>
+                            <label>Teléfono:</label><input type="tel" id="clientes-telefono">
+                            <label>Tipo Cliente:</label><input type="text" id="clientes-tipo_cliente" placeholder="Ej: Mayorista, Minorista">
+                            <label>Estado:</label>
+                            <select id="clientes-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option><option value="eliminado">Eliminado</option></select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>APELLIDO</th><th>TELÉFONO</th><th>TIPO</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-clientes"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 12: VENTAS -->
+                <!-- ============================================= -->
+                <div id="interface-12" class="interface" data-table="ventas">
+                    <h3><i class="bi bi-credit-card-fill"></i> Gestión de Ventas</h3>
+                    <button class="crud-button create-button" data-table="ventas"><i class="bi bi-plus-lg"></i> Registrar Venta</button>
+                    <div id="form-container-ventas" class="crud-form-container">
+                        <h4>Formulario de Venta</h4>
+                        <form id="form-ventas" data-table="ventas">
+                            <input type="hidden" id="ventas-id">
+                            <label>Cliente:</label>
+                            <select id="ventas-id_cliente" required></select>
+                            <label>Producto:</label>
+                            <select id="ventas-id_producto" required></select>
+                            <label>Cantidad:</label><input type="number" id="ventas-cantidad" required>
+                            <label>Total:</label><input type="number" step="0.01" id="ventas-total" required>
+                            <label>Fecha:</label><input type="date" id="ventas-fecha" required>
+                            <label>Estado:</label>
+                            <select id="ventas-estado"><option value="completada">Completada</option><option value="cancelada">Cancelada</option><option value="devuelta">Devuelta</option></select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>CLIENTE</th><th>PRODUCTO</th><th>CANTIDAD</th><th>TOTAL</th><th>FECHA</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-ventas"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 13: INVENTARIO -->
+                <!-- ============================================= -->
+                <div id="interface-13" class="interface" data-table="inventario">
+                    <h3><i class="bi bi-clipboard-data-fill"></i> Gestión de Inventario</h3>
+                    <button class="crud-button create-button" data-table="inventario"><i class="bi bi-plus-lg"></i> Registrar Movimiento</button>
+                    <div id="form-container-inventario" class="crud-form-container">
+                        <h4>Formulario de Movimiento</h4>
+                        <form id="form-inventario" data-table="inventario">
+                            <input type="hidden" id="inventario-id">
+                            <label>Producto:</label>
+                            <select id="inventario-id_producto" required></select>
+                            <label>Tipo Movimiento:</label>
+                            <select id="inventario-tipo_movimiento" required><option value="entrada">Entrada</option><option value="salida">Salida</option><option value="ajuste">Ajuste</option></select>
+                            <label>Cantidad:</label><input type="number" id="inventario-cantidad" required>
+                            <label>Fecha:</label><input type="date" id="inventario-fecha" required>
+                            <label>Responsable:</label><input type="text" id="inventario-responsable" required>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>PRODUCTO</th><th>TIPO MOV.</th><th>CANTIDAD</th><th>FECHA</th><th>RESPONSABLE</th><th>ACCIONES</th></tr></thead><tbody id="table-body-inventario"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 14: LOG ACTIVIDADES -->
+                <!-- ============================================= -->
+                <div id="interface-14" class="interface" data-table="actividades">
+                    <h3><i class="bi bi-file-earmark-text-fill"></i> Log de Actividades</h3>
+                    <button class="crud-button create-button" data-table="actividades"><i class="bi bi-plus-lg"></i> Registrar Actividad Manual</button>
+                    <div id="form-container-actividades" class="crud-form-container">
+                        <h4>Formulario de Actividad</h4>
+                        <form id="form-actividades" data-table="actividades">
+                           <input type="hidden" id="actividades-id">
+                           <label>Descripción:</label><input type="text" id="actividades-descripcion" required>
+                           <label>Responsable:</label><input type="text" id="actividades-responsable" required>
+                           <label>Fecha:</label><input type="date" id="actividades-fecha" required>
+                           <button type="submit">Guardar</button>
+                           <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>DESCRIPCIÓN</th><th>RESPONSABLE</th><th>FECHA</th><th>ACCIONES</th></tr></thead><tbody id="table-body-actividades"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 15: LABORES DIARIAS -->
+                <!-- ============================================= -->
+                <div id="interface-15" class="interface" data-table="labores_diarias">
+                    <h3><i class="bi bi-calendar-check"></i> Registro de Labores Diarias</h3>
+                    <button class="crud-button create-button" data-table="labores_diarias"><i class="bi bi-plus-lg"></i> Registrar Labor Diaria</button>
+                    <div id="form-container-labores_diarias" class="crud-form-container">
+                        <h4>Formulario de Labor Diaria</h4>
+                        <form id="form-labores_diarias" data-table="labores_diarias">
+                            <input type="hidden" id="labores_diarias-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Fecha:</label><input type="date" id="labores_diarias-fecha" required>
+                                </div>
+                                <div>
+                                    <label>Empleado:</label>
+                                    <select id="labores_diarias-id_empleado" required></select>
+                                </div>
+                                <div>
+                                    <label>Labor:</label>
+                                    <select id="labores_diarias-id_labor" required></select>
+                                </div>
+                                <div>
+                                    <label>Lote:</label>
+                                    <input type="text" id="labores_diarias-lote" placeholder="Ej: 312">
+                                </div>
+                                <div>
+                                    <label>¿Jornal Completo?</label>
+                                    <select id="labores_diarias-jornal_completo">
+                                        <option value="true">Sí</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Valor Pagado ($):</label>
+                                    <input type="number" step="0.01" id="labores_diarias-valor_pagado" required placeholder="63000">
+                                </div>
+                                <div style="grid-column: 1 / -1;">
+                                    <label>Insumo Usado:</label>
+                                    <input type="text" id="labores_diarias-insumo" placeholder="Ej: Safari 1000CM">
+                                </div>
+                                <div>
+                                    <label>Cantidad Insumo:</label>
+                                    <input type="number" step="0.01" id="labores_diarias-cantidad_insumo" placeholder="0">
+                                </div>
+                                <div>
+                                    <label>Unidad:</label>
+                                    <input type="text" id="labores_diarias-unidad_insumo" placeholder="CM, L, Kg">
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>FECHA</th><th>EMPLEADO</th><th>LABOR</th><th>LOTE</th><th>JORNAL</th><th>VALOR ($)</th><th>ACCIONES</th></tr></thead><tbody id="table-body-labores_diarias"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 16: HORAS EXTRAS -->
+                <!-- ============================================= -->
+                <div id="interface-16" class="interface" data-table="horas_extras">
+                    <h3><i class="bi bi-clock-history"></i> Registro de Horas Extras</h3>
+                    <button class="crud-button create-button" data-table="horas_extras"><i class="bi bi-plus-lg"></i> Registrar Horas Extras</button>
+                    <div id="form-container-horas_extras" class="crud-form-container">
+                        <h4>Formulario de Horas Extras</h4>
+                        <form id="form-horas_extras" data-table="horas_extras">
+                            <input type="hidden" id="horas_extras-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Fecha:</label><input type="date" id="horas_extras-fecha" required>
+                                </div>
+                                <div>
+                                    <label>Empleado:</label>
+                                    <select id="horas_extras-id_empleado" required></select>
+                                </div>
+                                <div>
+                                    <label>Tipo Hora Extra:</label>
+                                    <select id="horas_extras-id_tipo_hora_extra" required></select>
+                                </div>
+                                <div>
+                                    <label>Cantidad Horas:</label>
+                                    <input type="number" step="0.5" id="horas_extras-cantidad_horas" required placeholder="0">
+                                </div>
+                                <div>
+                                    <label>Valor Calculado ($):</label>
+                                    <input type="number" step="0.01" id="horas_extras-valor_calculado" readonly>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>FECHA</th><th>EMPLEADO</th><th>TIPO</th><th>HORAS</th><th>VALOR ($)</th><th>ACCIONES</th></tr></thead><tbody id="table-body-horas_extras"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 17: TRANSACCIONES VARIAS -->
+                <!-- ============================================= -->
+                <div id="interface-17" class="interface" data-table="transacciones_varias">
+                    <h3><i class="bi bi-cash-stack"></i> Transacciones Varias</h3>
+                    <button class="crud-button create-button" data-table="transacciones_varias"><i class="bi bi-plus-lg"></i> Registrar Transacción</button>
+                    <div id="form-container-transacciones_varias" class="crud-form-container">
+                        <h4>Formulario de Transacción</h4>
+                        <form id="form-transacciones_varias" data-table="transacciones_varias">
+                            <input type="hidden" id="transacciones_varias-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Fecha:</label><input type="date" id="transacciones_varias-fecha" required>
+                                </div>
+                                <div>
+                                    <label>Empleado:</label>
+                                    <select id="transacciones_varias-id_empleado" required></select>
+                                </div>
+                                <div>
+                                    <label>Tipo:</label>
+                                    <select id="transacciones_varias-tipo" required>
+                                        <option value="Prestamo">Préstamo</option>
+                                        <option value="Adelanto">Adelanto</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                                <div style="grid-column: 1 / -1;">
+                                    <label>Descripción:</label>
+                                    <textarea id="transacciones_varias-descripcion" rows="3"></textarea>
+                                </div>
+                                <div>
+                                    <label>Monto ($):</label>
+                                    <input type="number" step="0.01" id="transacciones_varias-monto" required>
+                                </div>
+                                <div>
+                                    <label>Saldo Pendiente ($):</label>
+                                    <input type="number" step="0.01" id="transacciones_varias-saldo_pendiente" placeholder="Si aplica">
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>FECHA</th><th>EMPLEADO</th><th>TIPO</th><th>MONTO</th><th>SALDO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-transacciones_varias"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 18: REPORTES -->
+                <!-- ============================================= -->
+                <div id="interface-18" class="interface" data-table="reportes">
+                    <h3><i class="bi bi-file-earmark-bar-graph"></i> Reportes</h3>
+                    <p>Genera reportes detallados de costos semanales, recolección por lote, planillas y más.</p>
+                    <div class="reportes-container">
+                        <div class="report-card">
+                            <i class="bi bi-calendar-week"></i>
+                            <h4>Resumen Semanal</h4>
+                            <p>Costos totales por semana</p>
+                            <button class="crud-button create-button" onclick="generarResumenSemanal()">Generar Reporte</button>
+                        </div>
+                        <div class="report-card">
+                            <i class="bi bi-geo-alt"></i>
+                            <h4>Recolección por Lote</h4>
+                            <p>Kg y $ por cada lote</p>
+                            <button class="crud-button create-button" onclick="generarRecoleccionPorLote()">Generar Reporte</button>
+                        </div>
+                        <div class="report-card">
+                            <i class="bi bi-people"></i>
+                            <h4>Planilla Fin de Semana</h4>
+                            <p>Resumen sábado y domingo</p>
+                            <button class="crud-button create-button" onclick="generarPlanillaFinDeSemana()">Generar Reporte</button>
+                        </div>
+                        <div class="report-card">
+                            <i class="bi bi-person-badge"></i>
+                            <h4>Reporte por Patrón</h4>
+                            <p>KG y $ por cada patrón</p>
+                            <button class="crud-button create-button" onclick="generarReportePorPatron()">Generar Reporte</button>
+                        </div>
+                        <div class="report-card">
+                            <i class="bi bi-calculator"></i>
+                            <h4>Diferencias Báscula</h4>
+                            <p>Corte vs Peso Real</p>
+                            <button class="crud-button create-button" onclick="generarReporteDiferenciasBascula()">Generar Reporte</button>
+                        </div>
+                        <div class="report-card">
+                            <i class="bi bi-clipboard-check"></i>
+                            <h4>Planilla Completa</h4>
+                            <p>Todos los conceptos semanal</p>
+                            <button class="crud-button create-button" onclick="generarPlanillaCompleta()">Generar Reporte</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 19: PRECIO KG -->
+                <!-- ============================================= -->
+                <div id="interface-19" class="interface" data-table="precio_kg">
+                    <h3><i class="bi bi-currency-dollar"></i> Gestión de Precio por KG</h3>
+                    <button class="crud-button create-button" data-table="precio_kg"><i class="bi bi-plus-lg"></i> Actualizar Precio KG</button>
+                    <div id="form-container-precio_kg" class="crud-form-container">
+                        <h4>Formulario de Precio KG</h4>
+                        <form id="form-precio_kg" data-table="precio_kg">
+                            <input type="hidden" id="precio_kg-id">
+                            <label>Precio por KG ($):</label>
+                            <input type="number" step="0.01" id="precio_kg-precio" required placeholder="1500">
+                            <label>Fecha de Vigencia:</label>
+                            <input type="date" id="precio_kg-fecha_vigencia" required>
+                            <label>Estado:</label>
+                            <select id="precio_kg-estado">
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                            </select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>PRECIO ($)</th><th>FECHA VIGENCIA</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-precio_kg"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 20: LOTES -->
+                <!-- ============================================= -->
+                <div id="interface-20" class="interface" data-table="lotes">
+                    <h3><i class="bi bi-geo-alt-fill"></i> Gestión de Lotes</h3>
+                    <button class="crud-button create-button" data-table="lotes"><i class="bi bi-plus-lg"></i> Crear Nuevo Lote</button>
+                    <div id="form-container-lotes" class="crud-form-container">
+                        <h4>Formulario de Lote</h4>
+                        <form id="form-lotes" data-table="lotes">
+                            <input type="hidden" id="lotes-id">
+                            <label>Nombre del Lote:</label>
+                            <input type="text" id="lotes-nombre" required placeholder="Ej: 312, 314">
+                            <label>Descripción:</label>
+                            <textarea id="lotes-descripcion" rows="3"></textarea>
+                            <label>Estado:</label>
+                            <select id="lotes-estado">
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                            </select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>DESCRIPCIÓN</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-lotes"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 21: LABORES -->
+                <!-- ============================================= -->
+                <div id="interface-21" class="interface" data-table="labores">
+                    <h3><i class="bi bi-tools"></i> Gestión de Labores</h3>
+                    <button class="crud-button create-button" data-table="labores"><i class="bi bi-plus-lg"></i> Crear Nueva Labor</button>
+                    <div id="form-container-labores" class="crud-form-container">
+                        <h4>Formulario de Labor</h4>
+                        <form id="form-labores" data-table="labores">
+                            <input type="hidden" id="labores-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Nombre de la Labor:</label>
+                                    <input type="text" id="labores-nombre" required placeholder="Ej: DESYERBE, PLATEO">
+                                </div>
+                                <div>
+                                    <label>Tipo de Pago:</label>
+                                    <select id="labores-tipo_pago" required>
+                                        <option value="jornal">Jornal</option>
+                                        <option value="hora">Por Hora</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Tarifa ($):</label>
+                                    <input type="number" step="0.01" id="labores-tarifa" required placeholder="63000">
+                                </div>
+                                <div>
+                                    <label>Estado:</label>
+                                    <select id="labores-estado">
+                                        <option value="activo">Activo</option>
+                                        <option value="inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>TIPO PAGO</th><th>TARIFA ($)</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-labores"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- INTERFACE 22: TIPOS HORA EXTRA -->
+                <!-- ============================================= -->
+                <div id="interface-22" class="interface" data-table="tipos_hora_extra">
+                    <h3><i class="bi bi-alarm-fill"></i> Tipos de Hora Extra</h3>
+                    <button class="crud-button create-button" data-table="tipos_hora_extra"><i class="bi bi-plus-lg"></i> Crear Tipo Hora Extra</button>
+                    <div id="form-container-tipos_hora_extra" class="crud-form-container">
+                        <h4>Formulario de Tipo Hora Extra</h4>
+                        <form id="form-tipos_hora_extra" data-table="tipos_hora_extra">
+                            <input type="hidden" id="tipos_hora_extra-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Nombre:</label>
+                                    <input type="text" id="tipos_hora_extra-nombre" required placeholder="Ej: Extra Diurna">
+                                </div>
+                                <div>
+                                    <label>Factor Recargo (Multiplicador):</label>
+                                    <input type="number" step="0.01" id="tipos_hora_extra-factor_recargo" required placeholder="1.25">
+                                </div>
+                                <div>
+                                    <label>Estado:</label>
+                                    <select id="tipos_hora_extra-estado">
+                                        <option value="activo">Activo</option>
+                                        <option value="inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+                                <i class="bi bi-info-circle"></i> Factor Recargo: 1.25 = +25%, 1.75 = +75%, 2.0 = +100%
+                            </p>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>FACTOR RECARGO</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-tipos_hora_extra"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============================================= -->
+                <!-- NUEVAS INTERFACES DEL EXCEL -->
+                <!-- ============================================= -->
+
+                <!-- INTERFACE 23: CAMPAMENTOS -->
+                <div id="interface-23" class="interface" data-table="campamentos">
+                    <h3><i class="bi bi-house-fill"></i> Gestión de Campamentos</h3>
+                    <button class="crud-button create-button" data-table="campamentos"><i class="bi bi-plus-lg"></i> Crear Nuevo Campamento</button>
+                    <div id="form-container-campamentos" class="crud-form-container">
+                        <h4>Formulario de Campamento</h4>
+                        <form id="form-campamentos" data-table="campamentos">
+                            <input type="hidden" id="campamentos-id">
+                            <label>Nombre del Campamento:</label>
+                            <input type="text" id="campamentos-nombre" required placeholder="Ej: Guaico, Tazmania">
+                            <label>Patrón Asignado:</label>
+                            <select id="campamentos-id_patron" required></select>
+                            <label>Descripción:</label>
+                            <textarea id="campamentos-descripcion" rows="3"></textarea>
+                            <label>Estado:</label>
+                            <select id="campamentos-estado">
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                            </select>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>NOMBRE</th><th>PATRÓN</th><th>DESCRIPCIÓN</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="table-body-campamentos"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- INTERFACE 24: BÁSCULA -->
+                <div id="interface-24" class="interface" data-table="bascula">
+                    <h3><i class="bi bi-calculator-fill"></i> Control de Báscula</h3>
+                    <button class="crud-button create-button" data-table="bascula"><i class="bi bi-plus-lg"></i> Registrar Pesaje</button>
+                    <div id="form-container-bascula" class="crud-form-container">
+                        <h4>Formulario de Báscula</h4>
+                        <form id="form-bascula" data-table="bascula">
+                            <input type="hidden" id="bascula-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Fecha:</label>
+                                    <input type="date" id="bascula-fecha" required>
+                                </div>
+                                <div>
+                                    <label>Campamento:</label>
+                                    <select id="bascula-id_campamento" required></select>
+                                </div>
+                                <div>
+                                    <label>Total Corte (KG):</label>
+                                    <input type="number" step="0.01" id="bascula-total_corte" required readonly>
+                                </div>
+                                <div>
+                                    <label>Total Báscula (KG):</label>
+                                    <input type="number" step="0.01" id="bascula-total_bascula" required>
+                                </div>
+                                <div>
+                                    <label>Diferencia (KG):</label>
+                                    <input type="number" step="0.01" id="bascula-diferencia" readonly>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>FECHA</th><th>CAMPAMENTO</th><th>KG CORTE</th><th>KG BÁSCULA</th><th>DIFERENCIA</th><th>ACCIONES</th></tr></thead><tbody id="table-body-bascula"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- INTERFACE 25: CONTRATOS -->
+                <div id="interface-25" class="interface" data-table="contratos">
+                    <h3><i class="bi bi-file-earmark-text"></i> Contratos por Tarea</h3>
+                    <button class="crud-button create-button" data-table="contratos"><i class="bi bi-plus-lg"></i> Crear Nuevo Contrato</button>
+                    <div id="form-container-contratos" class="crud-form-container">
+                        <h4>Formulario de Contrato</h4>
+                        <form id="form-contratos" data-table="contratos">
+                            <input type="hidden" id="contratos-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Fecha:</label>
+                                    <input type="date" id="contratos-fecha" required>
+                                </div>
+                                <div>
+                                    <label>Empleado:</label>
+                                    <select id="contratos-id_empleado" required></select>
+                                </div>
+                                <div>
+                                    <label>Tipo Contrato:</label>
+                                    <select id="contratos-tipo_contrato" required>
+                                        <option value="Poda">Poda</option>
+                                        <option value="Recoleccion">Recolección</option>
+                                        <option value="Fumigacion">Fumigación</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Lote:</label>
+                                    <input type="text" id="contratos-lote" required>
+                                </div>
+                                <div>
+                                    <label>Unidad:</label>
+                                    <select id="contratos-unidad" required>
+                                        <option value="Arbol">Árbol</option>
+                                        <option value="Metro">Metro</option>
+                                        <option value="Hectarea">Hectárea</option>
+                                        <option value="Kg">Kg</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Cantidad:</label>
+                                    <input type="number" step="0.01" id="contratos-cantidad" required>
+                                </div>
+                                <div>
+                                    <label>Porcentaje (%):</label>
+                                    <input type="number" step="0.01" id="contratos-porcentaje" placeholder="0.85 = 85%">
+                                </div>
+                                <div>
+                                    <label>Valor Unitario ($):</label>
+                                    <input type="number" step="0.01" id="contratos-valor_unitario" required>
+                                </div>
+                                <div>
+                                    <label>Total ($):</label>
+                                    <input type="number" step="0.01" id="contratos-total" readonly>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>FECHA</th><th>EMPLEADO</th><th>TIPO</th><th>LOTE</th><th>CANTIDAD</th><th>TOTAL ($)</th><th>ACCIONES</th></tr></thead><tbody id="table-body-contratos"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- INTERFACE 26: BONOS -->
+                <div id="interface-26" class="interface" data-table="bonos">
+                    <h3><i class="bi bi-gift-fill"></i> Gestión de Bonos</h3>
+                    <button class="crud-button create-button" data-table="bonos"><i class="bi bi-plus-lg"></i> Registrar Bono</button>
+                    <div id="form-container-bonos" class="crud-form-container">
+                        <h4>Formulario de Bono</h4>
+                        <form id="form-bonos" data-table="bonos">
+                            <input type="hidden" id="bonos-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Fecha:</label>
+                                    <input type="date" id="bonos-fecha" required>
+                                </div>
+                                <div>
+                                    <label>Empleado:</label>
+                                    <select id="bonos-id_empleado" required></select>
+                                </div>
+                                <div>
+                                    <label>Tipo Bono:</label>
+                                    <select id="bonos-tipo" required>
+                                        <option value="Fumigacion">Fumigación</option>
+                                        <option value="Transporte">Transporte</option>
+                                        <option value="Produccion">Producción</option>
+                                        <option value="Otros">Otros</option>
+                                    </select>
+                                </div>
+                                <div style="grid-column: 1 / -1;">
+                                    <label>Descripción:</label>
+                                    <textarea id="bonos-descripcion" rows="3"></textarea>
+                                </div>
+                                <div>
+                                    <label>Monto ($):</label>
+                                    <input type="number" step="0.01" id="bonos-monto" required>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>FECHA</th><th>EMPLEADO</th><th>TIPO</th><th>MONTO ($)</th><th>DESCRIPCIÓN</th><th>ACCIONES</th></tr></thead><tbody id="table-body-bonos"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- INTERFACE 27: SEMANAS -->
+                <div id="interface-27" class="interface" data-table="semanas">
+                    <h3><i class="bi bi-calendar3"></i> Gestión de Semanas</h3>
+                    <button class="crud-button create-button" data-table="semanas"><i class="bi bi-plus-lg"></i> Crear Nueva Semana</button>
+                    <div id="form-container-semanas" class="crud-form-container">
+                        <h4>Formulario de Semana</h4>
+                        <form id="form-semanas" data-table="semanas">
+                            <input type="hidden" id="semanas-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Número Semana:</label>
+                                    <input type="number" id="semanas-numero_semana" required placeholder="40">
+                                </div>
+                                <div>
+                                    <label>Año:</label>
+                                    <input type="number" id="semanas-anio" required placeholder="2025">
+                                </div>
+                                <div>
+                                    <label>Fecha Inicio:</label>
+                                    <input type="date" id="semanas-fecha_inicio" required>
+                                </div>
+                                <div>
+                                    <label>Fecha Fin:</label>
+                                    <input type="date" id="semanas-fecha_fin" required>
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>SEMANA</th><th>AÑO</th><th>INICIO</th><th>FIN</th><th>ACCIONES</th></tr></thead><tbody id="table-body-semanas"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- INTERFACE 28: TRANSPORTE -->
+                <div id="interface-28" class="interface" data-table="transporte">
+                    <h3><i class="bi bi-truck-front-fill"></i> Planilla de Transporte</h3>
+                    <button class="crud-button create-button" data-table="transporte"><i class="bi bi-plus-lg"></i> Registrar Transporte</button>
+                    <div id="form-container-transporte" class="crud-form-container">
+                        <h4>Formulario de Transporte</h4>
+                        <form id="form-transporte" data-table="transporte">
+                            <input type="hidden" id="transporte-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Fecha:</label>
+                                    <input type="date" id="transporte-fecha" required>
+                                </div>
+                                <div>
+                                    <label>Conductor:</label>
+                                    <select id="transporte-id_conductor" required></select>
+                                </div>
+                                <div>
+                                    <label>Lote:</label>
+                                    <input type="text" id="transporte-lote" required>
+                                </div>
+                                <div>
+                                    <label>Labor:</label>
+                                    <input type="text" id="transporte-labor" required placeholder="Ej: Cargue Pulpa">
+                                </div>
+                                <div>
+                                    <label>Cantidad:</label>
+                                    <input type="text" id="transporte-cantidad" placeholder="Ej: 2 Viajes, 100 Canastas">
+                                </div>
+                                <div>
+                                    <label>Hora Aproximada:</label>
+                                    <input type="time" id="transporte-hora_aproximada">
+                                </div>
+                            </div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table"><thead><tr><th>ID</th><th>FECHA</th><th>CONDUCTOR</th><th>LOTE</th><th>LABOR</th><th>CANTIDAD</th><th>HORA</th><th>ACCIONES</th></tr></thead><tbody id="table-body-transporte"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- GESTIÓN DE USUARIOS -->
+                <div id="interface-30" class="interface" data-table="usuarios">
+                    <h3><i class="bi bi-person-gear"></i> Gestión de Usuarios</h3>
+                    <button class="crud-button create-button" data-table="usuarios"><i class="bi bi-plus-lg"></i> Nuevo Usuario</button>
+                    <div id="form-container-usuarios" class="crud-form-container">
+                        <h4>Formulario de Usuario</h4>
+                        <form id="form-usuarios" data-table="usuarios">
+                            <input type="hidden" id="usuarios-id">
+                            <div class="form-grid">
+                                <div>
+                                    <label>Usuario <span style="color: var(--danger);">*</span></label>
+                                    <input type="text" id="usuarios-username" required placeholder="ej: admin">
+                                </div>
+                                <div>
+                                    <label>Contraseña <span style="color: var(--danger);">*</span></label>
+                                    <input type="password" id="usuarios-password" required placeholder="Mínimo 4 caracteres">
+                                </div>
+                                <div>
+                                    <label>Nombre Completo <span style="color: var(--danger);">*</span></label>
+                                    <input type="text" id="usuarios-nombre_completo" required placeholder="Nombre completo del usuario">
+                                </div>
+                                <div>
+                                    <label>Email <span style="color: var(--danger);">*</span></label>
+                                    <input type="email" id="usuarios-email" required placeholder="email@ejemplo.com">
+                                </div>
+                                <div>
+                                    <label>Rol <span style="color: var(--danger);">*</span></label>
+                                    <select id="usuarios-rol" required>
+                                        <option value="">Seleccione un rol</option>
+                                        <option value="Administrador">Administrador</option>
+                                        <option value="Supervisor">Supervisor</option>
+                                        <option value="Empleado">Empleado</option>
+                                        <option value="Contador">Contador</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Estado <span style="color: var(--danger);">*</span></label>
+                                    <select id="usuarios-estado" required>
+                                        <option value="activo">Activo</option>
+                                        <option value="inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Permisos Personalizados -->
+                            <div style="margin-top: 24px;">
+                                <label style="display: block; margin-bottom: 12px; font-weight: 600;">
+                                    <i class="bi bi-shield-check"></i> Permisos Personalizados (Opcional)
+                                </label>
+                                <p style="margin-bottom: 12px; color: var(--text-secondary); font-size: 13px;">
+                                    Si dejas esto vacío, se usarán los permisos del rol seleccionado. Marca solo los módulos que quieres permitir:
+                                </p>
+                                <input type="hidden" id="usuarios-permisos_personalizados">
+                                <div id="permisos-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; max-height: 300px; overflow-y: auto; padding: 16px; background: var(--bg-glass); border-radius: var(--radius-md); border: 1px solid var(--border-glass);">
+                                    <!-- Se llenará dinámicamente con JavaScript -->
+                                </div>
+                            </div>
+
+                            <p style="margin-top: 16px; padding: 12px; background: var(--bg-glass); border-radius: var(--radius-md); color: var(--text-secondary); font-size: 13px;">
+                                <i class="bi bi-shield-lock"></i> Las contraseñas se almacenan de forma segura. Al editar un usuario, deja la contraseña en blanco para mantener la actual.
+                            </p>
+                            <button type="submit">Guardar Usuario</button>
+                            <button type="button" class="cancel-button">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="table-container">
+                        <table class="crud-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>USUARIO</th>
+                                    <th>NOMBRE COMPLETO</th>
+                                    <th>EMAIL</th>
+                                    <th>ROL</th>
+                                    <th>ESTADO</th>
+                                    <th>ÚLTIMO ACCESO</th>
+                                    <th>ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body-usuarios"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+        <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    </div>
+
+    <!-- MODAL DE NOTIFICACIONES -->
+    <div id="notificationModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="bi bi-bell-fill"></i> Notificaciones</h3>
+                <button class="modal-close-btn" onclick="closeNotificationModal()">×</button>
+            </div>
+            <div class="modal-body" id="notificationList">
+                <p style="text-align: center; color: var(--text-light);">No hay notificaciones nuevas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PERFIL -->
+    <div id="profileModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="bi bi-person-circle"></i> Mi Perfil</h3>
+                <button class="modal-close-btn" onclick="closeProfileModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <img src="https://ui-avatars.com/api/?name=Usuario+Admin&background=2D7A4F&color=fff&bold=true&size=120" 
+                         alt="Avatar" 
+                         style="width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--primary); box-shadow: var(--shadow-lg);">
+                </div>
+                <div class="form-grid">
+                    <div>
+                        <label>Nombre:</label>
+                        <input type="text" id="profile-nombre" value="Usuario Admin" readonly>
+                    </div>
+                    <div>
+                        <label>Rol:</label>
+                        <input type="text" id="profile-rol" value="Administrador" readonly>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <label>Email:</label>
+                        <input type="email" id="profile-email" value="admin@hrorganic.com" readonly>
+                    </div>
+                </div>
+                <p style="margin-top: 24px; padding: 16px; background: var(--bg-glass); border-radius: var(--radius-md); color: var(--text-secondary); font-size: 14px;">
+                    <i class="bi bi-info-circle"></i> Para modificar tu perfil, contacta al administrador del sistema.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
