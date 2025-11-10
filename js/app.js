@@ -162,6 +162,33 @@ function showInterface(targetId) {
     const targetInterface = document.getElementById(targetId);
     if (targetInterface) {
         targetInterface.classList.add('active');
+
+        // Scroll automático al inicio de la interfaz (más agresivo)
+        const contentArea = document.querySelector('.content-area');
+        const mainContainer = document.querySelector('.main-container');
+
+        // Resetear scroll de todos los contenedores
+        if (contentArea) {
+            contentArea.scrollTop = 0;
+        }
+        if (mainContainer) {
+            mainContainer.scrollTop = 0;
+        }
+        window.scrollTo(0, 0);
+
+        // Scroll adicional para asegurar que la interfaz esté arriba
+        setTimeout(() => {
+            if (contentArea) {
+                contentArea.scrollTop = 0;
+            }
+            targetInterface.scrollIntoView({
+                behavior: 'auto',
+                block: 'start',
+                inline: 'start'
+            });
+            window.scrollTo(0, 0);
+        }, 50);
+
         const tableName = targetInterface.getAttribute('data-table');
         if (tableName && tableName !== 'reportes') {
             renderTable(tableName);
@@ -196,6 +223,19 @@ function showInterface(targetId) {
                     selectEmpleado.appendChild(option);
                 });
             }
+        }
+
+        // Poblar filtros de reportes
+        if (targetId === 'interface-18') {
+            poblarFiltrosReportes();
+        }
+
+        // Inicializar sistema de ventas con pestañas
+        if (targetId === 'interface-12') {
+            // Inicializar primera tabla activa (Banano)
+            setTimeout(() => {
+                renderTable('ventas_banano');
+            }, 100);
         }
     }
 
@@ -264,17 +304,23 @@ const TABLE_CONFIGS = {
     },
     'interface-3':  { name: 'cargos', title: 'Cargos', icon: 'bi-briefcase-fill', fields: ['id', 'nombre', 'salario_base', 'id_departamento', 'estado'], roles: ['Administrador'] },
     'interface-2':  { name: 'departamentos', title: 'Departamentos', icon: 'bi-building', fields: ['id', 'nombre', 'descripcion', 'estado'], roles: ['Administrador'] },
-    'interface-10': { name: 'recoleccion', title: 'Registro Recolección', icon: 'bi-basket-fill', fields: ['id', 'fecha', 'id_empleado', 'id_campamento', 'modulo', 'id_producto', 'cantidad_kg', 'precio_kg', 'total'], roles: ['Administrador', 'Supervisor'] },
-    'interface-15': { name: 'labores_diarias', title: 'Labores Diarias', icon: 'bi-calendar-check', fields: ['id', 'fecha', 'id_empleado', 'id_labor', 'jornal_completo', 'valor_pagado', 'insumo', 'cantidad_insumo', 'unidad_insumo'], roles: ['Administrador', 'Supervisor'] },
-    'interface-16': { name: 'horas_extras', title: 'Horas Extras', icon: 'bi-clock-history', fields: ['id', 'fecha', 'id_empleado', 'id_tipo_hora_extra', 'cantidad_horas', 'valor_calculado'], roles: ['Administrador', 'Supervisor'] },
-    'interface-17': { name: 'transacciones_varias', title: 'Transacciones Varias', icon: 'bi-cash-stack', fields: ['id', 'fecha', 'id_empleado', 'tipo', 'descripcion', 'monto', 'saldo_pendiente'], roles: ['Administrador', 'Contador'] },
+    'interface-10': { name: 'recoleccion', title: 'Registro Recolección', icon: 'bi-basket-fill', fields: ['id', 'fecha', 'id_campamento', 'id_empleado', 'lote', 'modulo', 'id_producto', 'cantidad_kg', 'precio_kg', 'total'], tableFields: ['id', 'fecha', 'id_campamento', 'id_empleado', 'lote', 'modulo', 'cantidad_kg', 'total'], roles: ['Administrador', 'Supervisor'] },
+    'interface-15': { name: 'labores_diarias', title: 'Labores Diarias', icon: 'bi-calendar-check', fields: ['id', 'fecha', 'id_empleado', 'id_labor', 'lote', 'jornal_completo', 'valor_pagado', 'insumo', 'cantidad_insumo', 'unidad_insumo'], tableFields: ['id', 'fecha', 'id_empleado', 'id_labor', 'lote', 'jornal_completo', 'valor_pagado'], roles: ['Administrador', 'Supervisor'] },
+    'interface-16': { name: 'horas_extras', title: 'Horas Extras', icon: 'bi-clock-history', fields: ['id', 'fecha', 'id_empleado', 'id_tipo_hora_extra', 'cantidad_horas', 'valor_calculado'], tableFields: ['id', 'fecha', 'id_empleado', 'id_tipo_hora_extra', 'cantidad_horas', 'valor_calculado'], roles: ['Administrador', 'Supervisor'] },
+    'interface-17': { name: 'transacciones_varias', title: 'Transacciones Varias', icon: 'bi-cash-stack', fields: ['id', 'fecha', 'id_empleado', 'tipo', 'descripcion', 'monto', 'saldo_pendiente'], tableFields: ['id', 'fecha', 'id_empleado', 'tipo', 'monto', 'saldo_pendiente'], roles: ['Administrador', 'Contador'] },
     'interface-6':  { name: 'nomina', title: 'Nómina', icon: 'bi-cash-coin', fields: ['id', 'id_empleado', 'id_semana', 'periodo_inicio', 'periodo_fin', 'pago_recoleccion', 'pago_jornales', 'pago_horas_extras', 'otros_ingresos', 'total_devengado', 'aporte_salud', 'aporte_pension', 'descuento_alimentacion', 'prestamos', 'adelantos', 'otras_deducciones', 'total_deducido', 'neto_pagado', 'estado'], roles: ['Administrador', 'Contador'] },
     'interface-18': { name: 'reportes', title: 'Reportes', icon: 'bi-file-earmark-bar-graph', fields: [], roles: ['Administrador', 'Contador', 'Supervisor'] },
     'interface-5':  { name: 'asistencia', title: 'Asistencia', icon: 'bi-calendar-check-fill', fields: ['id', 'id_empleado', 'fecha', 'hora_entrada', 'hora_salida', 'estado'], roles: ['Administrador', 'Supervisor'] },
     'interface-8':  { name: 'productos', title: 'Productos', icon: 'bi-box-seam-fill', fields: ['id', 'nombre', 'id_tipo_producto', 'precio_unitario', 'stock_actual', 'estado'], roles: ['Administrador', 'Supervisor'] },
     'interface-13': { name: 'inventario', title: 'Inventario', icon: 'bi-clipboard-data-fill', fields: ['id', 'id_producto', 'tipo_movimiento', 'cantidad', 'fecha', 'responsable'], roles: ['Administrador', 'Supervisor'] },
     'interface-7':  { name: 'tipos_producto', title: 'Tipos Producto', icon: 'bi-tags-fill', fields: ['id', 'nombre', 'categoria', 'unidad_medida', 'estado'], roles: ['Administrador'] },
-    'interface-12': { name: 'ventas', title: 'Ventas', icon: 'bi-credit-card-fill', fields: ['id', 'id_cliente', 'id_producto', 'cantidad', 'total', 'fecha', 'estado'], roles: ['Administrador', 'Supervisor', 'Contador'] },
+    'interface-12': { name: 'ventas', title: 'Ventas', icon: 'bi-credit-card-fill', fields: [], roles: ['Administrador', 'Supervisor', 'Contador'] },
+    'ventas_banano': { name: 'ventas_banano', title: 'Ventas Banano', fields: ['id', 'fecha', 'id_semana', 'lote', 'conduce', 'factura', 'kgs', 'racimos', 'precio', 'total', 'abono_bancolombia', 'abono_bbva', 'abono_efectivo', 'real_total', 'comprador'], tableFields: ['id', 'fecha', 'id_semana', 'lote', 'conduce', 'factura', 'kgs', 'racimos', 'precio', 'total', 'abono_bancolombia', 'abono_bbva', 'abono_efectivo', 'real_total', 'comprador'], roles: ['Administrador', 'Supervisor', 'Contador'] },
+    'ventas_platano': { name: 'ventas_platano', title: 'Ventas Plátano', fields: ['id', 'fecha', 'id_semana', 'lote', 'conduce', 'factura', 'kgs', 'racimos', 'calidad', 'precio', 'total', 'abono_bancolombia', 'abono_bbva', 'abono_efectivo', 'real_total', 'comprador'], tableFields: ['id', 'fecha', 'id_semana', 'lote', 'conduce', 'factura', 'kgs', 'racimos', 'calidad', 'precio', 'total', 'abono_bancolombia', 'abono_bbva', 'abono_efectivo', 'real_total', 'comprador'], roles: ['Administrador', 'Supervisor', 'Contador'] },
+    'ventas_limon_gutierrez': { name: 'ventas_limon_gutierrez', title: 'Ventas Limón Gutiérrez', fields: ['id', 'fecha', 'id_semana', 'conduce', 'factura', 'kgs_nacion', 'kgs_calidad', 'precio', 'subtotal', 'total', 'retefuente', 'cuota_aseo', 'neto_recibir', 'abonos', 'saldo'], tableFields: ['id', 'fecha', 'id_semana', 'conduce', 'factura', 'kgs_nacion', 'kgs_calidad', 'precio', 'subtotal', 'total', 'retefuente', 'cuota_aseo', 'neto_recibir', 'abonos', 'saldo'], roles: ['Administrador', 'Supervisor', 'Contador'] },
+    'ventas_limon_nacional': { name: 'ventas_limon_nacional', title: 'Ventas Limón Nacional', fields: ['id', 'fecha', 'id_semana', 'conduce', 'fac_ve', 'kgs', 'calidad', 'precio', 'total', 'dto_asoho', 'abono_bancolombia', 'abono_bbva', 'abono_efectivo', 'real_total', 'comprador', 'fecha_pago'], tableFields: ['id', 'fecha', 'id_semana', 'conduce', 'fac_ve', 'kgs', 'calidad', 'precio', 'total', 'dto_asoho', 'abono_bancolombia', 'abono_bbva', 'abono_efectivo', 'real_total', 'comprador', 'fecha_pago'], roles: ['Administrador', 'Supervisor', 'Contador'] },
+    'ventas_naranja': { name: 'ventas_naranja', title: 'Ventas Naranja', fields: ['id', 'fecha', 'id_semana', 'conduce', 'kgs', 'precio', 'total', 'factura', 'dto_asoho', 'abono_bancolombia', 'abono_efectivo', 'real_total', 'comprador'], tableFields: ['id', 'fecha', 'id_semana', 'conduce', 'kgs', 'precio', 'total', 'factura', 'dto_asoho', 'abono_bancolombia', 'abono_efectivo', 'real_total', 'comprador'], roles: ['Administrador', 'Supervisor', 'Contador'] },
+    'ventas_cafe': { name: 'ventas_cafe', title: 'Ventas Café', fields: ['id', 'fecha', 'fs', 'conduce', 'factura', 'cliente', 'precio_arroba', 'precio_kilo', 'discriminacion', 'kilos', 'valor_bruto', 'desc_cooperativa', 'retefuente', 'valor_neto'], tableFields: ['id', 'fecha', 'fs', 'conduce', 'factura', 'cliente', 'precio_arroba', 'precio_kilo', 'discriminacion', 'kilos', 'valor_bruto', 'desc_cooperativa', 'retefuente', 'valor_neto'], roles: ['Administrador', 'Supervisor', 'Contador'] },
     'interface-11': { name: 'clientes', title: 'Clientes', icon: 'bi-person-check-fill', fields: ['id', 'nombre', 'apellido', 'telefono', 'tipo_cliente', 'estado'], roles: ['Administrador', 'Supervisor'] },
     'interface-9':  { name: 'proveedores', title: 'Proveedores', icon: 'bi-truck', fields: ['id', 'nombre', 'contacto', 'telefono', 'ruc_nit', 'estado'], roles: ['Administrador'] },
     'interface-19': { name: 'precio_kg', title: 'Precio por KG', icon: 'bi-currency-dollar', fields: ['id', 'precio', 'fecha_vigencia', 'estado'], roles: ['Administrador'] },
@@ -282,13 +328,12 @@ const TABLE_CONFIGS = {
     'interface-21': { name: 'labores', title: 'Labores', icon: 'bi-tools', fields: ['id', 'nombre', 'tipo_pago', 'tarifa', 'estado'], roles: ['Administrador'] },
     'interface-22': { name: 'tipos_hora_extra', title: 'Tipos Hora Extra', icon: 'bi-alarm-fill', fields: ['id', 'nombre', 'factor_recargo', 'estado'], roles: ['Administrador'] },
     'interface-14': { name: 'actividades', title: 'Log Actividades', icon: 'bi-file-earmark-text-fill', fields: ['id', 'descripcion', 'responsable', 'fecha'], roles: ['Administrador'] },
-    'interface-23': { name: 'campamentos', title: 'Campamentos', icon: 'bi-house-fill', fields: ['id', 'nombre', 'id_lote', 'id_patron', 'estado'], roles: ['Administrador'] },
-    'interface-24': { name: 'patrones', title: 'Patrones', icon: 'bi-person-badge-fill', fields: ['id', 'id_empleado', 'id_campamento', 'fecha_asignacion', 'activo'], roles: ['Administrador'] },
-    'interface-25': { name: 'bascula', title: 'Control Báscula', icon: 'bi-speedometer2', fields: ['id', 'fecha', 'id_campamento', 'total_corte', 'total_bascula', 'diferencia', 'observaciones'], roles: ['Administrador', 'Supervisor'] },
-    'interface-26': { name: 'contratos', title: 'Contratos por Tarea', icon: 'bi-file-earmark-check', fields: ['id', 'fecha', 'id_empleado', 'tipo_contrato', 'id_lote', 'unidad', 'cantidad', 'porcentaje', 'valor_unitario', 'total'], roles: ['Administrador'] },
-    'interface-27': { name: 'bonos', title: 'Bonos y Bonificaciones', icon: 'bi-gift-fill', fields: ['id', 'fecha', 'tipo', 'id_empleado', 'monto', 'descripcion'], roles: ['Administrador', 'Contador'] },
-    'interface-28': { name: 'semanas', title: 'Gestión de Semanas', icon: 'bi-calendar-week', fields: ['id', 'numero_semana', 'año', 'fecha_inicio', 'fecha_fin', 'activa'], roles: ['Administrador'] },
-    'interface-29': { name: 'transporte', title: 'Planilla Transporte', icon: 'bi-truck-front-fill', fields: ['id', 'fecha', 'id_lote', 'labor', 'cantidad', 'unidad', 'hora_aproximada', 'id_conductor'], roles: ['Administrador', 'Supervisor'] },
+    'interface-23': { name: 'campamentos', title: 'Campamentos', icon: 'bi-house-fill', fields: ['id', 'nombre', 'id_patron', 'descripcion', 'estado'], tableFields: ['id', 'nombre', 'id_patron', 'descripcion', 'estado'], roles: ['Administrador'] },
+    'interface-24': { name: 'bascula', title: 'Control de Báscula', icon: 'bi-calculator-fill', fields: ['id', 'fecha', 'id_campamento', 'total_corte', 'total_bascula', 'diferencia'], tableFields: ['id', 'fecha', 'id_campamento', 'total_corte', 'total_bascula', 'diferencia'], roles: ['Administrador', 'Supervisor'] },
+    'interface-25': { name: 'contratos', title: 'Contratos por Tarea', icon: 'bi-file-earmark-text', fields: ['id', 'fecha', 'id_empleado', 'tipo_contrato', 'lote', 'unidad', 'cantidad', 'porcentaje', 'valor_unitario', 'total'], tableFields: ['id', 'fecha', 'id_empleado', 'tipo_contrato', 'lote', 'cantidad', 'total'], roles: ['Administrador'] },
+    'interface-26': { name: 'bonos', title: 'Gestión de Bonos', icon: 'bi-gift-fill', fields: ['id', 'fecha', 'id_empleado', 'tipo', 'monto', 'descripcion'], tableFields: ['id', 'fecha', 'id_empleado', 'tipo', 'monto', 'descripcion'], roles: ['Administrador', 'Contador'] },
+    'interface-27': { name: 'semanas', title: 'Gestión de Semanas', icon: 'bi-calendar3', fields: ['id', 'numero_semana', 'anio', 'fecha_inicio', 'fecha_fin'], tableFields: ['id', 'numero_semana', 'anio', 'fecha_inicio', 'fecha_fin'], roles: ['Administrador'] },
+    'interface-28': { name: 'transporte', title: 'Planilla de Transporte', icon: 'bi-truck-front-fill', fields: ['id', 'fecha', 'id_conductor', 'lote', 'labor', 'cantidad', 'hora_aproximada'], tableFields: ['id', 'fecha', 'id_conductor', 'lote', 'labor', 'cantidad', 'hora_aproximada'], roles: ['Administrador', 'Supervisor'] },
     'interface-30': { name: 'usuarios', title: 'Gestión de Usuarios', icon: 'bi-person-gear', fields: ['id', 'username', 'password', 'nombre_completo', 'email', 'rol', 'permisos_personalizados', 'estado', 'ultimo_acceso', 'fecha_creacion'], roles: ['Administrador'] },
 };
 
@@ -1493,24 +1538,156 @@ function exportarCSV(tableName, titulo) {
 }
 
 // ===============================================
+// FUNCIONES AUXILIARES PARA FILTROS DE REPORTES
+// ===============================================
+
+function poblarFiltrosReportes() {
+    // Poblar Semanas
+    const selectSemana = document.getElementById('reporte-filtro-semana');
+    if (selectSemana) {
+        const semanas = getRecords('semanas').sort((a, b) => b.numero_semana - a.numero_semana);
+        selectSemana.innerHTML = '<option value="">Todas las Semanas</option>';
+        semanas.forEach(sem => {
+            const option = document.createElement('option');
+            option.value = sem.id;
+            option.textContent = `Semana ${sem.numero_semana} - ${sem.anio} (${new Date(sem.fecha_inicio).toLocaleDateString('es-CO')} a ${new Date(sem.fecha_fin).toLocaleDateString('es-CO')})`;
+            if (sem.activa) {
+                option.selected = true;
+            }
+            selectSemana.appendChild(option);
+        });
+    }
+
+    // Poblar Campamentos
+    const selectCampamento = document.getElementById('reporte-filtro-campamento');
+    if (selectCampamento) {
+        const campamentos = getRecords('campamentos').filter(c => c.estado === 'activo');
+        selectCampamento.innerHTML = '<option value="">Todos los Campamentos</option>';
+        campamentos.forEach(camp => {
+            const option = document.createElement('option');
+            option.value = camp.id;
+            option.textContent = camp.nombre;
+            selectCampamento.appendChild(option);
+        });
+    }
+
+    // Poblar Empleados
+    const selectEmpleado = document.getElementById('reporte-filtro-empleado');
+    if (selectEmpleado) {
+        const empleados = getRecords('empleados').filter(e => e.estado === 'activo');
+        selectEmpleado.innerHTML = '<option value="">Todos los Empleados</option>';
+        empleados.forEach(emp => {
+            const option = document.createElement('option');
+            option.value = emp.id;
+            option.textContent = `${emp.nombre} ${emp.apellido}`;
+            selectEmpleado.appendChild(option);
+        });
+    }
+
+    // Poblar Lotes
+    const selectLote = document.getElementById('reporte-filtro-lote');
+    if (selectLote) {
+        const lotes = getRecords('lotes').filter(l => l.estado === 'activo');
+        selectLote.innerHTML = '<option value="">Todos los Lotes</option>';
+        lotes.forEach(lote => {
+            const option = document.createElement('option');
+            option.value = lote.id;
+            option.textContent = lote.nombre;
+            selectLote.appendChild(option);
+        });
+    }
+}
+
+function obtenerFiltrosReportes() {
+    const semanaId = document.getElementById('reporte-filtro-semana')?.value || '';
+    const campamentoId = document.getElementById('reporte-filtro-campamento')?.value || '';
+    const empleadoId = document.getElementById('reporte-filtro-empleado')?.value || '';
+    const loteId = document.getElementById('reporte-filtro-lote')?.value || '';
+    const fechaInicio = document.getElementById('reporte-filtro-fecha-inicio')?.value || '';
+    const fechaFin = document.getElementById('reporte-filtro-fecha-fin')?.value || '';
+
+    // Si hay semana seleccionada, obtener sus fechas
+    let rangoFechas = { inicio: fechaInicio, fin: fechaFin };
+    if (semanaId) {
+        const semana = getRecords('semanas').find(s => s.id == semanaId);
+        if (semana) {
+            rangoFechas = { inicio: semana.fecha_inicio, fin: semana.fecha_fin };
+        }
+    }
+
+    return {
+        semanaId: semanaId ? parseInt(semanaId) : null,
+        campamentoId: campamentoId ? parseInt(campamentoId) : null,
+        empleadoId: empleadoId ? parseInt(empleadoId) : null,
+        loteId: loteId ? parseInt(loteId) : null,
+        fechaInicio: rangoFechas.inicio,
+        fechaFin: rangoFechas.fin
+    };
+}
+
+function filtrarRegistrosPorCriterios(registros, filtros) {
+    return registros.filter(registro => {
+        // Filtro por fecha
+        if (filtros.fechaInicio && registro.fecha < filtros.fechaInicio) return false;
+        if (filtros.fechaFin && registro.fecha > filtros.fechaFin) return false;
+
+        // Filtro por campamento
+        if (filtros.campamentoId && registro.id_campamento != filtros.campamentoId) return false;
+
+        // Filtro por empleado
+        if (filtros.empleadoId && registro.id_empleado != filtros.empleadoId) return false;
+
+        // Filtro por lote
+        if (filtros.loteId) {
+            // Para recolección y labores que tienen campo 'lote' como texto
+            if (registro.lote) {
+                const lote = getRecords('lotes').find(l => l.id == filtros.loteId);
+                if (lote && registro.lote !== lote.nombre) return false;
+            }
+            // Para otras tablas que usan id_lote
+            if (registro.id_lote && registro.id_lote != filtros.loteId) return false;
+        }
+
+        return true;
+    });
+}
+
+// ===============================================
 // ✅ REPORTES COMPLETOS
 // ===============================================
 
 function generarResumenSemanal() {
-    const semanaActual = getRecords('semanas').find(s => s.activa);
-    if (!semanaActual) {
-        Toastify({ text: "No hay semana activa configurada", duration: 3000, style: { background: "var(--warning)" } }).showToast();
-        return;
+    const filtros = obtenerFiltrosReportes();
+
+    // Obtener datos de la semana
+    let tituloSemana = "Resumen General";
+    let rangoFechas = "";
+
+    if (filtros.semanaId) {
+        const semana = getRecords('semanas').find(s => s.id == filtros.semanaId);
+        if (semana) {
+            tituloSemana = `Resumen Semana ${semana.numero_semana} - ${semana.anio}`;
+            rangoFechas = `${new Date(semana.fecha_inicio).toLocaleDateString('es-CO')} - ${new Date(semana.fecha_fin).toLocaleDateString('es-CO')}`;
+        }
+    } else if (filtros.fechaInicio && filtros.fechaFin) {
+        rangoFechas = `${new Date(filtros.fechaInicio).toLocaleDateString('es-CO')} - ${new Date(filtros.fechaFin).toLocaleDateString('es-CO')}`;
+    } else {
+        rangoFechas = "Todos los registros";
     }
-    
-    const fechaInicio = semanaActual.fecha_inicio;
-    const fechaFin = semanaActual.fecha_fin;
-    
-    const recolecciones = getRecords('recoleccion').filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
-    const labores = getRecords('labores_diarias').filter(l => l.fecha >= fechaInicio && l.fecha <= fechaFin);
-    const horasExtras = getRecords('horas_extras').filter(h => h.fecha >= fechaInicio && h.fecha <= fechaFin);
-    const contratos = getRecords('contratos').filter(c => c.fecha >= fechaInicio && c.fecha <= fechaFin);
-    const bonos = getRecords('bonos').filter(b => b.fecha >= fechaInicio && b.fecha <= fechaFin);
+
+    // Obtener y filtrar registros
+    let recolecciones = getRecords('recoleccion');
+    let labores = getRecords('labores_diarias');
+    let horasExtras = getRecords('horas_extras');
+    let contratos = getRecords('contratos');
+    let bonos = getRecords('bonos');
+
+    // Aplicar filtros
+    recolecciones = filtrarRegistrosPorCriterios(recolecciones, filtros);
+    labores = filtrarRegistrosPorCriterios(labores, filtros);
+    horasExtras = filtrarRegistrosPorCriterios(horasExtras, filtros);
+    contratos = filtrarRegistrosPorCriterios(contratos, filtros);
+    bonos = filtrarRegistrosPorCriterios(bonos, filtros);
     
     const totalRecoleccion = recolecciones.reduce((sum, r) => sum + (r.total || 0), 0);
     const totalLabores = labores.reduce((sum, l) => sum + (l.valor_pagado || 0), 0);
@@ -1521,14 +1698,35 @@ function generarResumenSemanal() {
     
     const totalCostos = totalRecoleccion + totalLabores + totalHorasExtras + totalContratos + totalBonos;
     
+    // Generar info de filtros aplicados
+    let filtrosAplicados = [];
+    if (filtros.campamentoId) {
+        const camp = getRecords('campamentos').find(c => c.id == filtros.campamentoId);
+        if (camp) filtrosAplicados.push(`Campamento: ${camp.nombre}`);
+    }
+    if (filtros.empleadoId) {
+        const emp = getRecords('empleados').find(e => e.id == filtros.empleadoId);
+        if (emp) filtrosAplicados.push(`Empleado: ${emp.nombre} ${emp.apellido}`);
+    }
+    if (filtros.loteId) {
+        const lote = getRecords('lotes').find(l => l.id == filtros.loteId);
+        if (lote) filtrosAplicados.push(`Lote: ${lote.nombre}`);
+    }
+
     const html = `
         <div style="padding: 30px; background: var(--bg-card); border-radius: 16px;">
-            <h2 style="text-align: center; margin-bottom: 30px; color: var(--text-primary);">
-                <i class="bi bi-calendar-week"></i> Resumen Semana ${semanaActual.numero_semana}
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--text-primary);">
+                <i class="bi bi-calendar-week"></i> ${tituloSemana}
             </h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">
-                ${new Date(fechaInicio).toLocaleDateString('es-CO')} - ${new Date(fechaFin).toLocaleDateString('es-CO')}
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 10px;">
+                ${rangoFechas}
             </p>
+            ${filtrosAplicados.length > 0 ? `
+                <p style="text-align: center; color: var(--text-light); font-size: 13px; margin-bottom: 20px;">
+                    <i class="bi bi-funnel-fill"></i> Filtros: ${filtrosAplicados.join(' | ')}
+                </p>
+            ` : ''}
+            <hr style="border: none; height: 1px; background: var(--border-glass); margin-bottom: 30px;">
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
                 <div style="background: var(--bg-glass); padding: 20px; border-radius: 12px; text-align: center;">
@@ -1602,28 +1800,38 @@ function generarResumenSemanal() {
 }
 
 function generarRecoleccionPorLote() {
-    const semanaActual = getRecords('semanas').find(s => s.activa);
-    if (!semanaActual) {
-        Toastify({ text: "No hay semana activa configurada", duration: 3000, style: { background: "var(--warning)" } }).showToast();
-        return;
-    }
-    
-    const fechaInicio = semanaActual.fecha_inicio;
-    const fechaFin = semanaActual.fecha_fin;
-    
-    const recolecciones = getRecords('recoleccion').filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
-    const campamentos = getRecords('campamentos');
-    
-    const porCampamento = {};
-    recolecciones.forEach(r => {
-        const campamento = campamentos.find(c => c.id === r.id_campamento);
-        const nombreCamp = campamento ? campamento.nombre : 'Sin campamento';
-        if (!porCampamento[nombreCamp]) {
-            porCampamento[nombreCamp] = { kg: 0, total: 0, registros: 0 };
+    const filtros = obtenerFiltrosReportes();
+
+    // Obtener datos de la semana
+    let tituloReporte = "Recolección por Lote";
+    let rangoFechas = "";
+
+    if (filtros.semanaId) {
+        const semana = getRecords('semanas').find(s => s.id == filtros.semanaId);
+        if (semana) {
+            tituloReporte += ` - Semana ${semana.numero_semana} ${semana.anio}`;
+            rangoFechas = `${new Date(semana.fecha_inicio).toLocaleDateString('es-CO')} - ${new Date(semana.fecha_fin).toLocaleDateString('es-CO')}`;
         }
-        porCampamento[nombreCamp].kg += r.cantidad_kg || 0;
-        porCampamento[nombreCamp].total += r.total || 0;
-        porCampamento[nombreCamp].registros += 1;
+    } else if (filtros.fechaInicio && filtros.fechaFin) {
+        rangoFechas = `${new Date(filtros.fechaInicio).toLocaleDateString('es-CO')} - ${new Date(filtros.fechaFin).toLocaleDateString('es-CO')}`;
+    } else {
+        rangoFechas = "Todos los registros";
+    }
+
+    // Obtener y filtrar recolecciones
+    let recolecciones = getRecords('recoleccion');
+    recolecciones = filtrarRegistrosPorCriterios(recolecciones, filtros);
+
+    // Agrupar por lote (campo "lote" en recolección)
+    const porLote = {};
+    recolecciones.forEach(r => {
+        const nombreLote = r.lote || 'Sin Lote';
+        if (!porLote[nombreLote]) {
+            porLote[nombreLote] = { kg: 0, total: 0, registros: 0 };
+        }
+        porLote[nombreLote].kg += r.cantidad_kg || 0;
+        porLote[nombreLote].total += r.total || 0;
+        porLote[nombreLote].registros += 1;
     });
     
     let tablaHTML = `
@@ -1665,15 +1873,32 @@ function generarRecoleccionPorLote() {
         </tbody>
     </table>
     `;
-    
+
+    // Generar info de filtros aplicados
+    let filtrosAplicados = [];
+    if (filtros.campamentoId) {
+        const camp = getRecords('campamentos').find(c => c.id == filtros.campamentoId);
+        if (camp) filtrosAplicados.push(`Campamento: ${camp.nombre}`);
+    }
+    if (filtros.empleadoId) {
+        const emp = getRecords('empleados').find(e => e.id == filtros.empleadoId);
+        if (emp) filtrosAplicados.push(`Empleado: ${emp.nombre} ${emp.apellido}`);
+    }
+
     const html = `
         <div style="padding: 30px; background: var(--bg-card); border-radius: 16px;">
             <h2 style="text-align: center; margin-bottom: 10px; color: var(--text-primary);">
-                <i class="bi bi-house-fill"></i> Recolección por Campamento
+                <i class="bi bi-geo-alt-fill"></i> ${tituloReporte}
             </h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">
-                Semana ${semanaActual.numero_semana}: ${new Date(fechaInicio).toLocaleDateString('es-CO')} - ${new Date(fechaFin).toLocaleDateString('es-CO')}
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 10px;">
+                ${rangoFechas}
             </p>
+            ${filtrosAplicados.length > 0 ? `
+                <p style="text-align: center; color: var(--text-light); font-size: 13px; margin-bottom: 20px;">
+                    <i class="bi bi-funnel-fill"></i> Filtros: ${filtrosAplicados.join(' | ')}
+                </p>
+            ` : ''}
+            <hr style="border: none; height: 1px; background: var(--border-glass); margin-bottom: 30px;">
             ${tablaHTML}
             <div style="text-align: center; margin-top: 30px;">
                 <button onclick="window.print()" class="crud-button create-button" style="margin-right: 10px;">
@@ -1925,16 +2150,27 @@ function generarReportBascula() {
 
 // ✅ NUEVO: Reporte por Patrón
 function generarReportePorPatron() {
-    const semanaActual = getRecords('semanas').find(s => s.activa);
-    if (!semanaActual) {
-        Toastify({ text: "No hay semana activa configurada", duration: 3000, style: { background: "var(--warning)" } }).showToast();
-        return;
+    const filtros = obtenerFiltrosReportes();
+
+    // Obtener datos de la semana
+    let tituloReporte = "Recolección por Patrón";
+    let rangoFechas = "";
+
+    if (filtros.semanaId) {
+        const semana = getRecords('semanas').find(s => s.id == filtros.semanaId);
+        if (semana) {
+            tituloReporte += ` - Semana ${semana.numero_semana} ${semana.anio}`;
+            rangoFechas = `${new Date(semana.fecha_inicio).toLocaleDateString('es-CO')} - ${new Date(semana.fecha_fin).toLocaleDateString('es-CO')}`;
+        }
+    } else if (filtros.fechaInicio && filtros.fechaFin) {
+        rangoFechas = `${new Date(filtros.fechaInicio).toLocaleDateString('es-CO')} - ${new Date(filtros.fechaFin).toLocaleDateString('es-CO')}`;
+    } else {
+        rangoFechas = "Todos los registros";
     }
-    
-    const fechaInicio = semanaActual.fecha_inicio;
-    const fechaFin = semanaActual.fecha_fin;
-    
-    const recolecciones = getRecords('recoleccion').filter(r => r.fecha >= fechaInicio && r.fecha <= fechaFin);
+
+    // Obtener y filtrar recolecciones
+    let recolecciones = getRecords('recoleccion');
+    recolecciones = filtrarRegistrosPorCriterios(recolecciones, filtros);
     const campamentos = getRecords('campamentos');
     const patrones = getRecords('patrones');
     const empleados = getRecords('empleados');
@@ -2007,15 +2243,32 @@ function generarReportePorPatron() {
         </tbody>
     </table>
     `;
-    
+
+    // Generar info de filtros aplicados
+    let filtrosAplicados = [];
+    if (filtros.campamentoId) {
+        const camp = getRecords('campamentos').find(c => c.id == filtros.campamentoId);
+        if (camp) filtrosAplicados.push(`Campamento: ${camp.nombre}`);
+    }
+    if (filtros.loteId) {
+        const lote = getRecords('lotes').find(l => l.id == filtros.loteId);
+        if (lote) filtrosAplicados.push(`Lote: ${lote.nombre}`);
+    }
+
     const html = `
         <div style="padding: 30px; background: var(--bg-card); border-radius: 16px;">
             <h2 style="text-align: center; margin-bottom: 10px; color: var(--text-primary);">
-                <i class="bi bi-person-badge-fill"></i> Recolección por Patrón
+                <i class="bi bi-person-badge-fill"></i> ${tituloReporte}
             </h2>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">
-                Semana ${semanaActual.numero_semana}: ${new Date(fechaInicio).toLocaleDateString('es-CO')} - ${new Date(fechaFin).toLocaleDateString('es-CO')}
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 10px;">
+                ${rangoFechas}
             </p>
+            ${filtrosAplicados.length > 0 ? `
+                <p style="text-align: center; color: var(--text-light); font-size: 13px; margin-bottom: 20px;">
+                    <i class="bi bi-funnel-fill"></i> Filtros: ${filtrosAplicados.join(' | ')}
+                </p>
+            ` : ''}
+            <hr style="border: none; height: 1px; background: var(--border-glass); margin-bottom: 30px;">
             ${tablaHTML}
             <div style="text-align: center; margin-top: 30px;">
                 <button onclick="window.print()" class="crud-button create-button" style="margin-right: 10px;">
@@ -2031,6 +2284,575 @@ function generarReportePorPatron() {
     Swal.fire({
         html: html,
         width: '1000px',
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: {
+            popup: document.body.classList.contains('dark-mode') ? 'swal2-dark' : ''
+        }
+    });
+}
+
+// ✅ NUEVO: Reporte Diferencias Báscula
+function generarReporteDiferenciasBascula() {
+    const filtros = obtenerFiltrosReportes();
+
+    // Obtener datos de la semana
+    let tituloReporte = "Diferencias de Báscula";
+    let rangoFechas = "";
+
+    if (filtros.semanaId) {
+        const semana = getRecords('semanas').find(s => s.id == filtros.semanaId);
+        if (semana) {
+            tituloReporte += ` - Semana ${semana.numero_semana} ${semana.anio}`;
+            rangoFechas = `${new Date(semana.fecha_inicio).toLocaleDateString('es-CO')} - ${new Date(semana.fecha_fin).toLocaleDateString('es-CO')}`;
+        }
+    } else if (filtros.fechaInicio && filtros.fechaFin) {
+        rangoFechas = `${new Date(filtros.fechaInicio).toLocaleDateString('es-CO')} - ${new Date(filtros.fechaFin).toLocaleDateString('es-CO')}`;
+    } else {
+        rangoFechas = "Todos los registros";
+    }
+
+    // Obtener y filtrar registros de báscula
+    let registrosBascula = getRecords('bascula');
+    registrosBascula = filtrarRegistrosPorCriterios(registrosBascula, filtros);
+
+    const campamentos = getRecords('campamentos');
+
+    let tablaHTML = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead style="background: var(--bg-glass);">
+                <tr>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-glass);">Fecha</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-glass);">Campamento</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid var(--border-glass);">KG Corte</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid var(--border-glass);">KG Báscula</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid var(--border-glass);">Diferencia</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border-glass);">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    let totalCorte = 0;
+    let totalBascula = 0;
+    let totalDiferencia = 0;
+
+    registrosBascula.forEach(reg => {
+        const campamento = campamentos.find(c => c.id === reg.id_campamento);
+        const nombreCamp = campamento ? campamento.nombre : 'Sin Campamento';
+        const diferencia = reg.diferencia || 0;
+
+        totalCorte += reg.total_corte || 0;
+        totalBascula += reg.total_bascula || 0;
+        totalDiferencia += diferencia;
+
+        // Determinar color según diferencia
+        let colorDiferencia = 'var(--text-primary)';
+        let estadoTexto = 'Normal';
+        let estadoColor = 'var(--success)';
+
+        if (Math.abs(diferencia) > 10) {
+            colorDiferencia = 'var(--danger)';
+            estadoTexto = 'Alta';
+            estadoColor = 'var(--danger)';
+        } else if (Math.abs(diferencia) > 5) {
+            colorDiferencia = 'var(--warning)';
+            estadoTexto = 'Media';
+            estadoColor = 'var(--warning)';
+        }
+
+        tablaHTML += `
+            <tr style="border-bottom: 1px solid var(--border-glass);">
+                <td style="padding: 12px; color: var(--text-primary);">${new Date(reg.fecha).toLocaleDateString('es-CO')}</td>
+                <td style="padding: 12px; color: var(--text-secondary);">${nombreCamp}</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">${(reg.total_corte || 0).toFixed(2)} Kg</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">${(reg.total_bascula || 0).toFixed(2)} Kg</td>
+                <td style="padding: 12px; text-align: right; color: ${colorDiferencia}; font-weight: bold;">${diferencia.toFixed(2)} Kg</td>
+                <td style="padding: 12px; text-align: center;">
+                    <span style="padding: 4px 12px; border-radius: 12px; background: ${estadoColor}20; color: ${estadoColor}; font-size: 12px; font-weight: 600;">
+                        ${estadoTexto}
+                    </span>
+                </td>
+            </tr>
+        `;
+    });
+
+    tablaHTML += `
+            <tr style="background: var(--bg-glass); font-weight: bold;">
+                <td colspan="2" style="padding: 12px; color: var(--text-primary);">TOTAL</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">${totalCorte.toFixed(2)} Kg</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">${totalBascula.toFixed(2)} Kg</td>
+                <td style="padding: 12px; text-align: right; color: var(--primary); font-size: 18px;">${totalDiferencia.toFixed(2)} Kg</td>
+                <td style="padding: 12px;"></td>
+            </tr>
+        </tbody>
+    </table>
+    `;
+
+    // Generar info de filtros aplicados
+    let filtrosAplicados = [];
+    if (filtros.campamentoId) {
+        const camp = campamentos.find(c => c.id == filtros.campamentoId);
+        if (camp) filtrosAplicados.push(`Campamento: ${camp.nombre}`);
+    }
+
+    const html = `
+        <div style="padding: 30px; background: var(--bg-card); border-radius: 16px;">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--text-primary);">
+                <i class="bi bi-calculator"></i> ${tituloReporte}
+            </h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 10px;">
+                ${rangoFechas}
+            </p>
+            ${filtrosAplicados.length > 0 ? `
+                <p style="text-align: center; color: var(--text-light); font-size: 13px; margin-bottom: 20px;">
+                    <i class="bi bi-funnel-fill"></i> Filtros: ${filtrosAplicados.join(' | ')}
+                </p>
+            ` : ''}
+            <hr style="border: none; height: 1px; background: var(--border-glass); margin-bottom: 30px;">
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
+                <div style="background: var(--bg-glass); padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 5px;">Total Corte</div>
+                    <div style="font-size: 20px; font-weight: bold; color: var(--text-primary);">${totalCorte.toFixed(2)} Kg</div>
+                </div>
+                <div style="background: var(--bg-glass); padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 5px;">Total Báscula</div>
+                    <div style="font-size: 20px; font-weight: bold; color: var(--text-primary);">${totalBascula.toFixed(2)} Kg</div>
+                </div>
+                <div style="background: ${totalDiferencia > 0 ? 'var(--danger)' : 'var(--success)'}20; padding: 15px; border-radius: 12px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 5px;">Diferencia Total</div>
+                    <div style="font-size: 20px; font-weight: bold; color: ${totalDiferencia > 0 ? 'var(--danger)' : 'var(--success)'};">${totalDiferencia.toFixed(2)} Kg</div>
+                </div>
+            </div>
+
+            ${tablaHTML}
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="window.print()" class="crud-button create-button" style="margin-right: 10px;">
+                    <i class="bi bi-printer-fill"></i> Imprimir
+                </button>
+                <button onclick="exportarCSV('bascula', 'diferencias_bascula')" class="crud-button create-button">
+                    <i class="bi bi-file-earmark-arrow-down-fill"></i> Exportar CSV
+                </button>
+            </div>
+        </div>
+    `;
+
+    Swal.fire({
+        html: html,
+        width: '1100px',
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: {
+            popup: document.body.classList.contains('dark-mode') ? 'swal2-dark' : ''
+        }
+    });
+}
+
+// ✅ NUEVO: Reporte por Campamento
+function generarReportePorCampamento() {
+    const filtros = obtenerFiltrosReportes();
+
+    // Obtener datos de la semana
+    let tituloReporte = "Recolección por Campamento";
+    let rangoFechas = "";
+
+    if (filtros.semanaId) {
+        const semana = getRecords('semanas').find(s => s.id == filtros.semanaId);
+        if (semana) {
+            tituloReporte += ` - Semana ${semana.numero_semana} ${semana.anio}`;
+            rangoFechas = `${new Date(semana.fecha_inicio).toLocaleDateString('es-CO')} - ${new Date(semana.fecha_fin).toLocaleDateString('es-CO')}`;
+        }
+    } else if (filtros.fechaInicio && filtros.fechaFin) {
+        rangoFechas = `${new Date(filtros.fechaInicio).toLocaleDateString('es-CO')} - ${new Date(filtros.fechaFin).toLocaleDateString('es-CO')}`;
+    } else {
+        rangoFechas = "Todos los registros";
+    }
+
+    // Obtener y filtrar recolecciones
+    let recolecciones = getRecords('recoleccion');
+    recolecciones = filtrarRegistrosPorCriterios(recolecciones, filtros);
+
+    const campamentos = getRecords('campamentos');
+    const empleados = getRecords('empleados');
+
+    const porCampamento = {};
+
+    recolecciones.forEach(r => {
+        const campamento = campamentos.find(c => c.id === r.id_campamento);
+        const nombreCampamento = campamento ? campamento.nombre : 'Sin Campamento';
+
+        if (!porCampamento[nombreCampamento]) {
+            porCampamento[nombreCampamento] = {
+                kg: 0,
+                total: 0,
+                recolectores: new Set(),
+                patron: ''
+            };
+
+            // Obtener patrón del campamento
+            if (campamento && campamento.id_patron) {
+                const patronEmp = empleados.find(e => e.id === campamento.id_patron);
+                if (patronEmp) {
+                    porCampamento[nombreCampamento].patron = `${patronEmp.nombre} ${patronEmp.apellido}`;
+                }
+            }
+        }
+
+        porCampamento[nombreCampamento].kg += r.cantidad_kg || 0;
+        porCampamento[nombreCampamento].total += r.total || 0;
+        porCampamento[nombreCampamento].recolectores.add(r.id_empleado);
+    });
+
+    let tablaHTML = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead style="background: var(--bg-glass);">
+                <tr>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-glass);">Campamento</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid var(--border-glass);">Patrón</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid var(--border-glass);">Kg Total</th>
+                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid var(--border-glass);">Total ($)</th>
+                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid var(--border-glass);">Recolectores</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    let totalKg = 0;
+    let totalDinero = 0;
+
+    Object.entries(porCampamento).forEach(([campamento, datos]) => {
+        totalKg += datos.kg;
+        totalDinero += datos.total;
+
+        tablaHTML += `
+            <tr style="border-bottom: 1px solid var(--border-glass);">
+                <td style="padding: 12px; color: var(--text-primary); font-weight: 600;">${campamento}</td>
+                <td style="padding: 12px; color: var(--text-secondary);">${datos.patron || 'Sin Patrón'}</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">${datos.kg.toFixed(2)} Kg</td>
+                <td style="padding: 12px; text-align: right; color: var(--primary); font-weight: bold;">$${datos.total.toLocaleString('es-CO')}</td>
+                <td style="padding: 12px; text-align: center; color: var(--text-secondary);">${datos.recolectores.size}</td>
+            </tr>
+        `;
+    });
+
+    tablaHTML += `
+            <tr style="background: var(--bg-glass); font-weight: bold;">
+                <td colspan="2" style="padding: 12px; color: var(--text-primary);">TOTAL</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">${totalKg.toFixed(2)} Kg</td>
+                <td style="padding: 12px; text-align: right; color: var(--primary); font-size: 18px;">$${totalDinero.toLocaleString('es-CO')}</td>
+                <td style="padding: 12px; text-align: center; color: var(--text-secondary);">-</td>
+            </tr>
+        </tbody>
+    </table>
+    `;
+
+    const html = `
+        <div style="padding: 30px; background: var(--bg-card); border-radius: 16px;">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--text-primary);">
+                <i class="bi bi-house-fill"></i> ${tituloReporte}
+            </h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">
+                ${rangoFechas}
+            </p>
+            ${tablaHTML}
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="window.print()" class="crud-button create-button" style="margin-right: 10px;">
+                    <i class="bi bi-printer-fill"></i> Imprimir
+                </button>
+                <button onclick="exportarCSV('recoleccion', 'reporte_por_campamento')" class="crud-button create-button">
+                    <i class="bi bi-file-earmark-arrow-down-fill"></i> Exportar CSV
+                </button>
+            </div>
+        </div>
+    `;
+
+    Swal.fire({
+        html: html,
+        width: '1000px',
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: {
+            popup: document.body.classList.contains('dark-mode') ? 'swal2-dark' : ''
+        }
+    });
+}
+
+// ✅ NUEVO: Planilla Completa Semanal
+function generarPlanillaCompleta() {
+    const filtros = obtenerFiltrosReportes();
+
+    // Obtener datos de la semana
+    let tituloReporte = "Planilla Completa";
+    let rangoFechas = "";
+
+    if (filtros.semanaId) {
+        const semana = getRecords('semanas').find(s => s.id == filtros.semanaId);
+        if (semana) {
+            tituloReporte += ` - Semana ${semana.numero_semana} ${semana.anio}`;
+            rangoFechas = `${new Date(semana.fecha_inicio).toLocaleDateString('es-CO')} - ${new Date(semana.fecha_fin).toLocaleDateString('es-CO')}`;
+        }
+    } else if (filtros.fechaInicio && filtros.fechaFin) {
+        rangoFechas = `${new Date(filtros.fechaInicio).toLocaleDateString('es-CO')} - ${new Date(filtros.fechaFin).toLocaleDateString('es-CO')}`;
+    } else {
+        rangoFechas = "Todos los registros";
+    }
+
+    // Obtener y filtrar todos los registros
+    let recolecciones = getRecords('recoleccion');
+    let labores = getRecords('labores_diarias');
+    let horasExtras = getRecords('horas_extras');
+    let contratos = getRecords('contratos');
+    let bonos = getRecords('bonos');
+    let transacciones = getRecords('transacciones_varias');
+
+    recolecciones = filtrarRegistrosPorCriterios(recolecciones, filtros);
+    labores = filtrarRegistrosPorCriterios(labores, filtros);
+    horasExtras = filtrarRegistrosPorCriterios(horasExtras, filtros);
+    contratos = filtrarRegistrosPorCriterios(contratos, filtros);
+    bonos = filtrarRegistrosPorCriterios(bonos, filtros);
+    transacciones = filtrarRegistrosPorCriterios(transacciones, filtros);
+
+    const empleados = getRecords('empleados');
+
+    // Agrupar por empleado
+    const porEmpleado = {};
+
+    // Procesar recolecciones
+    recolecciones.forEach(r => {
+        if (!porEmpleado[r.id_empleado]) {
+            const emp = empleados.find(e => e.id === r.id_empleado);
+            porEmpleado[r.id_empleado] = {
+                nombre: emp ? `${emp.nombre} ${emp.apellido}` : 'Desconocido',
+                recoleccion: 0,
+                labores: 0,
+                horasExtras: 0,
+                contratos: 0,
+                bonos: 0,
+                transacciones: 0,
+                total: 0
+            };
+        }
+        porEmpleado[r.id_empleado].recoleccion += r.total || 0;
+    });
+
+    // Procesar labores
+    labores.forEach(l => {
+        if (!porEmpleado[l.id_empleado]) {
+            const emp = empleados.find(e => e.id === l.id_empleado);
+            porEmpleado[l.id_empleado] = {
+                nombre: emp ? `${emp.nombre} ${emp.apellido}` : 'Desconocido',
+                recoleccion: 0,
+                labores: 0,
+                horasExtras: 0,
+                contratos: 0,
+                bonos: 0,
+                transacciones: 0,
+                total: 0
+            };
+        }
+        porEmpleado[l.id_empleado].labores += l.valor_pagado || 0;
+    });
+
+    // Procesar horas extras
+    horasExtras.forEach(h => {
+        if (!porEmpleado[h.id_empleado]) {
+            const emp = empleados.find(e => e.id === h.id_empleado);
+            porEmpleado[h.id_empleado] = {
+                nombre: emp ? `${emp.nombre} ${emp.apellido}` : 'Desconocido',
+                recoleccion: 0,
+                labores: 0,
+                horasExtras: 0,
+                contratos: 0,
+                bonos: 0,
+                transacciones: 0,
+                total: 0
+            };
+        }
+        porEmpleado[h.id_empleado].horasExtras += h.valor_calculado || 0;
+    });
+
+    // Procesar contratos
+    contratos.forEach(c => {
+        if (!porEmpleado[c.id_empleado]) {
+            const emp = empleados.find(e => e.id === c.id_empleado);
+            porEmpleado[c.id_empleado] = {
+                nombre: emp ? `${emp.nombre} ${emp.apellido}` : 'Desconocido',
+                recoleccion: 0,
+                labores: 0,
+                horasExtras: 0,
+                contratos: 0,
+                bonos: 0,
+                transacciones: 0,
+                total: 0
+            };
+        }
+        porEmpleado[c.id_empleado].contratos += c.total || 0;
+    });
+
+    // Procesar bonos
+    bonos.forEach(b => {
+        if (!porEmpleado[b.id_empleado]) {
+            const emp = empleados.find(e => e.id === b.id_empleado);
+            porEmpleado[b.id_empleado] = {
+                nombre: emp ? `${emp.nombre} ${emp.apellido}` : 'Desconocido',
+                recoleccion: 0,
+                labores: 0,
+                horasExtras: 0,
+                contratos: 0,
+                bonos: 0,
+                transacciones: 0,
+                total: 0
+            };
+        }
+        porEmpleado[b.id_empleado].bonos += b.monto || 0;
+    });
+
+    // Procesar transacciones (pueden ser positivas o negativas)
+    transacciones.forEach(t => {
+        if (!porEmpleado[t.id_empleado]) {
+            const emp = empleados.find(e => e.id === t.id_empleado);
+            porEmpleado[t.id_empleado] = {
+                nombre: emp ? `${emp.nombre} ${emp.apellido}` : 'Desconocido',
+                recoleccion: 0,
+                labores: 0,
+                horasExtras: 0,
+                contratos: 0,
+                bonos: 0,
+                transacciones: 0,
+                total: 0
+            };
+        }
+        porEmpleado[t.id_empleado].transacciones += t.monto || 0;
+    });
+
+    // Calcular totales
+    Object.values(porEmpleado).forEach(emp => {
+        emp.total = emp.recoleccion + emp.labores + emp.horasExtras + emp.contratos + emp.bonos + emp.transacciones;
+    });
+
+    let tablaHTML = `
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px;">
+            <thead style="background: var(--bg-glass);">
+                <tr>
+                    <th style="padding: 10px; text-align: left; border-bottom: 2px solid var(--border-glass); position: sticky; left: 0; background: var(--bg-glass);">Empleado</th>
+                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--border-glass);">Recolección</th>
+                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--border-glass);">Labores</th>
+                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--border-glass);">H. Extras</th>
+                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--border-glass);">Contratos</th>
+                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--border-glass);">Bonos</th>
+                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--border-glass);">Trans.</th>
+                    <th style="padding: 10px; text-align: right; border-bottom: 2px solid var(--border-glass); font-weight: bold;">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    let totales = {
+        recoleccion: 0,
+        labores: 0,
+        horasExtras: 0,
+        contratos: 0,
+        bonos: 0,
+        transacciones: 0,
+        total: 0
+    };
+
+    Object.entries(porEmpleado)
+        .sort(([, a], [, b]) => b.total - a.total)
+        .forEach(([id, datos]) => {
+            totales.recoleccion += datos.recoleccion;
+            totales.labores += datos.labores;
+            totales.horasExtras += datos.horasExtras;
+            totales.contratos += datos.contratos;
+            totales.bonos += datos.bonos;
+            totales.transacciones += datos.transacciones;
+            totales.total += datos.total;
+
+            tablaHTML += `
+                <tr style="border-bottom: 1px solid var(--border-glass);">
+                    <td style="padding: 10px; color: var(--text-primary); font-weight: 600; position: sticky; left: 0; background: var(--bg-card);">${datos.nombre}</td>
+                    <td style="padding: 10px; text-align: right; color: var(--text-secondary);">$${datos.recoleccion.toLocaleString('es-CO')}</td>
+                    <td style="padding: 10px; text-align: right; color: var(--text-secondary);">$${datos.labores.toLocaleString('es-CO')}</td>
+                    <td style="padding: 10px; text-align: right; color: var(--text-secondary);">$${datos.horasExtras.toLocaleString('es-CO')}</td>
+                    <td style="padding: 10px; text-align: right; color: var(--text-secondary);">$${datos.contratos.toLocaleString('es-CO')}</td>
+                    <td style="padding: 10px; text-align: right; color: var(--text-secondary);">$${datos.bonos.toLocaleString('es-CO')}</td>
+                    <td style="padding: 10px; text-align: right; color: ${datos.transacciones < 0 ? 'var(--danger)' : 'var(--text-secondary)'};">$${datos.transacciones.toLocaleString('es-CO')}</td>
+                    <td style="padding: 10px; text-align: right; color: var(--primary); font-weight: bold;">$${datos.total.toLocaleString('es-CO')}</td>
+                </tr>
+            `;
+        });
+
+    tablaHTML += `
+            <tr style="background: var(--bg-glass); font-weight: bold; font-size: 14px;">
+                <td style="padding: 12px; color: var(--text-primary); position: sticky; left: 0; background: var(--bg-glass);">TOTALES</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">$${totales.recoleccion.toLocaleString('es-CO')}</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">$${totales.labores.toLocaleString('es-CO')}</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">$${totales.horasExtras.toLocaleString('es-CO')}</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">$${totales.contratos.toLocaleString('es-CO')}</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">$${totales.bonos.toLocaleString('es-CO')}</td>
+                <td style="padding: 12px; text-align: right; color: var(--text-primary);">$${totales.transacciones.toLocaleString('es-CO')}</td>
+                <td style="padding: 12px; text-align: right; color: var(--primary); font-size: 18px;">$${totales.total.toLocaleString('es-CO')}</td>
+            </tr>
+        </tbody>
+    </table>
+    `;
+
+    const html = `
+        <div style="padding: 30px; background: var(--bg-card); border-radius: 16px;">
+            <h2 style="text-align: center; margin-bottom: 10px; color: var(--text-primary);">
+                <i class="bi bi-clipboard-check"></i> ${tituloReporte}
+            </h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 20px;">
+                ${rangoFechas}
+            </p>
+            <hr style="border: none; height: 1px; background: var(--border-glass); margin-bottom: 30px;">
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                <div style="background: var(--primary)20; padding: 12px; border-radius: 10px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">Recolección</div>
+                    <div style="font-size: 16px; font-weight: bold; color: var(--primary);">$${totales.recoleccion.toLocaleString('es-CO')}</div>
+                </div>
+                <div style="background: var(--accent)20; padding: 12px; border-radius: 10px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">Labores</div>
+                    <div style="font-size: 16px; font-weight: bold; color: var(--accent);">$${totales.labores.toLocaleString('es-CO')}</div>
+                </div>
+                <div style="background: var(--warning)20; padding: 12px; border-radius: 10px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">H. Extras</div>
+                    <div style="font-size: 16px; font-weight: bold; color: var(--warning);">$${totales.horasExtras.toLocaleString('es-CO')}</div>
+                </div>
+                <div style="background: var(--info)20; padding: 12px; border-radius: 10px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">Contratos</div>
+                    <div style="font-size: 16px; font-weight: bold; color: var(--info);">$${totales.contratos.toLocaleString('es-CO')}</div>
+                </div>
+                <div style="background: var(--success)20; padding: 12px; border-radius: 10px; text-align: center;">
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-bottom: 4px;">Bonos</div>
+                    <div style="font-size: 16px; font-weight: bold; color: var(--success);">$${totales.bonos.toLocaleString('es-CO')}</div>
+                </div>
+                <div style="background: linear-gradient(135deg, var(--primary), var(--accent)); padding: 12px; border-radius: 10px; text-align: center;">
+                    <div style="color: white; font-size: 12px; margin-bottom: 4px; opacity: 0.9;">TOTAL</div>
+                    <div style="font-size: 18px; font-weight: bold; color: white;">$${totales.total.toLocaleString('es-CO')}</div>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                ${tablaHTML}
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="window.print()" class="crud-button create-button" style="margin-right: 10px;">
+                    <i class="bi bi-printer-fill"></i> Imprimir
+                </button>
+                <button onclick="exportarCSV('recoleccion', 'planilla_completa')" class="crud-button create-button">
+                    <i class="bi bi-file-earmark-arrow-down-fill"></i> Exportar CSV
+                </button>
+            </div>
+        </div>
+    `;
+
+    Swal.fire({
+        html: html,
+        width: '1400px',
         showConfirmButton: false,
         showCloseButton: true,
         customClass: {
@@ -2725,9 +3547,14 @@ function setupEventListeners() {
                     generarCheckboxesPermisos();
                 }
 
+                // Scroll automático mejorado para que el formulario quede visible
                 setTimeout(() => {
-                    formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
+                    formContainer.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',  // Centra el formulario en la pantalla
+                        inline: 'nearest'
+                    });
+                }, 150);
             }
         });
     });
@@ -2948,6 +3775,11 @@ function setupApp() {
 
     Object.keys(TABLE_CONFIGS).forEach(id => {
         const config = TABLE_CONFIGS[id];
+
+        // Filtrar: solo mostrar botones que empiezan con "interface-" (no las sub-tablas de ventas)
+        if (!id.startsWith('interface-')) {
+            return; // Saltar las tablas individuales de ventas
+        }
 
         // Verificar permisos antes de mostrar el botón
         if (!hasAccess(id)) {
@@ -3434,3 +4266,220 @@ function getWeatherIcon(iconCode) {
     };
     return iconMap[iconCode] || 'bi-cloud-fill';
 }
+
+// ===============================================
+// SISTEMA DE PESTAÑAS DE VENTAS
+// ===============================================
+
+// Inicializar pestañas de ventas
+function initVentasTabs() {
+    const tabs = document.querySelectorAll('.ventas-tab');
+    const contents = document.querySelectorAll('.ventas-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remover active de todos los tabs y contenidos
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+
+            // Activar tab y contenido seleccionado
+            tab.classList.add('active');
+            const producto = tab.getAttribute('data-producto');
+            const content = document.getElementById('ventas-' + producto);
+            if (content) {
+                content.classList.add('active');
+                const tableName = content.getAttribute('data-table');
+                if (tableName) {
+                    renderTable(tableName);
+                }
+            }
+        });
+    });
+}
+
+// Cálculos automáticos para Ventas Banano
+function initVentasBananoCalculations() {
+    const form = document.getElementById('form-ventas_banano');
+    if (!form) return;
+
+    const kgs = form.querySelector('#ventas_banano-kgs');
+    const precio = form.querySelector('#ventas_banano-precio');
+    const total = form.querySelector('#ventas_banano-total');
+    const bancolombia = form.querySelector('#ventas_banano-abono_bancolombia');
+    const bbva = form.querySelector('#ventas_banano-abono_bbva');
+    const efectivo = form.querySelector('#ventas_banano-abono_efectivo');
+    const realTotal = form.querySelector('#ventas_banano-real_total');
+
+    function calcular() {
+        const totalVal = (parseFloat(kgs.value) || 0) * (parseFloat(precio.value) || 0);
+        total.value = totalVal.toFixed(2);
+
+        const abonos = (parseFloat(bancolombia.value) || 0) + (parseFloat(bbva.value) || 0) + (parseFloat(efectivo.value) || 0);
+        realTotal.value = (totalVal - abonos).toFixed(2);
+    }
+
+    [kgs, precio, bancolombia, bbva, efectivo].forEach(el => {
+        if (el) el.addEventListener('input', calcular);
+    });
+}
+
+// Cálculos automáticos para Ventas Plátano
+function initVentasPlatanosCalculations() {
+    const form = document.getElementById('form-ventas_platano');
+    if (!form) return;
+
+    const kgs = form.querySelector('#ventas_platano-kgs');
+    const precio = form.querySelector('#ventas_platano-precio');
+    const total = form.querySelector('#ventas_platano-total');
+    const bancolombia = form.querySelector('#ventas_platano-abono_bancolombia');
+    const bbva = form.querySelector('#ventas_platano-abono_bbva');
+    const efectivo = form.querySelector('#ventas_platano-abono_efectivo');
+    const realTotal = form.querySelector('#ventas_platano-real_total');
+
+    function calcular() {
+        const totalVal = (parseFloat(kgs.value) || 0) * (parseFloat(precio.value) || 0);
+        total.value = totalVal.toFixed(2);
+
+        const abonos = (parseFloat(bancolombia.value) || 0) + (parseFloat(bbva.value) || 0) + (parseFloat(efectivo.value) || 0);
+        realTotal.value = (totalVal - abonos).toFixed(2);
+    }
+
+    [kgs, precio, bancolombia, bbva, efectivo].forEach(el => {
+        if (el) el.addEventListener('input', calcular);
+    });
+}
+
+// Cálculos automáticos para Limón Gutiérrez
+function initVentasLimonGutierrezCalculations() {
+    const form = document.getElementById('form-ventas_limon_gutierrez');
+    if (!form) return;
+
+    const kgsNacion = form.querySelector('#ventas_limon_gutierrez-kgs_nacion');
+    const kgsCalidad = form.querySelector('#ventas_limon_gutierrez-kgs_calidad');
+    const precio = form.querySelector('#ventas_limon_gutierrez-precio');
+    const subtotal = form.querySelector('#ventas_limon_gutierrez-subtotal');
+    const total = form.querySelector('#ventas_limon_gutierrez-total');
+    const retefuente = form.querySelector('#ventas_limon_gutierrez-retefuente');
+    const cuotaAseo = form.querySelector('#ventas_limon_gutierrez-cuota_aseo');
+    const netoRecibir = form.querySelector('#ventas_limon_gutierrez-neto_recibir');
+    const abonos = form.querySelector('#ventas_limon_gutierrez-abonos');
+    const saldo = form.querySelector('#ventas_limon_gutierrez-saldo');
+
+    function calcular() {
+        const totalKgs = (parseFloat(kgsNacion.value) || 0) + (parseFloat(kgsCalidad.value) || 0);
+        const subtotalVal = totalKgs * (parseFloat(precio.value) || 0);
+        subtotal.value = subtotalVal.toFixed(2);
+        total.value = subtotalVal.toFixed(2);
+
+        const netoVal = subtotalVal - (parseFloat(retefuente.value) || 0) - (parseFloat(cuotaAseo.value) || 0);
+        netoRecibir.value = netoVal.toFixed(2);
+
+        const saldoVal = netoVal - (parseFloat(abonos.value) || 0);
+        saldo.value = saldoVal.toFixed(2);
+    }
+
+    [kgsNacion, kgsCalidad, precio, retefuente, cuotaAseo, abonos].forEach(el => {
+        if (el) el.addEventListener('input', calcular);
+    });
+}
+
+// Cálculos automáticos para Limón Nacional
+function initVentasLimonNacionalCalculations() {
+    const form = document.getElementById('form-ventas_limon_nacional');
+    if (!form) return;
+
+    const kgs = form.querySelector('#ventas_limon_nacional-kgs');
+    const precio = form.querySelector('#ventas_limon_nacional-precio');
+    const total = form.querySelector('#ventas_limon_nacional-total');
+    const dtoAsoho = form.querySelector('#ventas_limon_nacional-dto_asoho');
+    const bancolombia = form.querySelector('#ventas_limon_nacional-abono_bancolombia');
+    const bbva = form.querySelector('#ventas_limon_nacional-abono_bbva');
+    const efectivo = form.querySelector('#ventas_limon_nacional-abono_efectivo');
+    const realTotal = form.querySelector('#ventas_limon_nacional-real_total');
+
+    function calcular() {
+        const totalVal = (parseFloat(kgs.value) || 0) * (parseFloat(precio.value) || 0);
+        total.value = totalVal.toFixed(2);
+
+        const totalConDto = totalVal - (parseFloat(dtoAsoho.value) || 0);
+        const abonos = (parseFloat(bancolombia.value) || 0) + (parseFloat(bbva.value) || 0) + (parseFloat(efectivo.value) || 0);
+        realTotal.value = (totalConDto - abonos).toFixed(2);
+    }
+
+    [kgs, precio, dtoAsoho, bancolombia, bbva, efectivo].forEach(el => {
+        if (el) el.addEventListener('input', calcular);
+    });
+}
+
+// Cálculos automáticos para Naranja
+function initVentasNaranjaCalculations() {
+    const form = document.getElementById('form-ventas_naranja');
+    if (!form) return;
+
+    const kgs = form.querySelector('#ventas_naranja-kgs');
+    const precio = form.querySelector('#ventas_naranja-precio');
+    const total = form.querySelector('#ventas_naranja-total');
+    const dtoAsoho = form.querySelector('#ventas_naranja-dto_asoho');
+    const bancolombia = form.querySelector('#ventas_naranja-abono_bancolombia');
+    const efectivo = form.querySelector('#ventas_naranja-abono_efectivo');
+    const realTotal = form.querySelector('#ventas_naranja-real_total');
+
+    function calcular() {
+        const totalVal = (parseFloat(kgs.value) || 0) * (parseFloat(precio.value) || 0);
+        total.value = totalVal.toFixed(2);
+
+        const totalConDto = totalVal - (parseFloat(dtoAsoho.value) || 0);
+        const abonos = (parseFloat(bancolombia.value) || 0) + (parseFloat(efectivo.value) || 0);
+        realTotal.value = (totalConDto - abonos).toFixed(2);
+    }
+
+    [kgs, precio, dtoAsoho, bancolombia, efectivo].forEach(el => {
+        if (el) el.addEventListener('input', calcular);
+    });
+}
+
+// Cálculos automáticos para Café
+function initVentasCafeCalculations() {
+    const form = document.getElementById('form-ventas_cafe');
+    if (!form) return;
+
+    const precioArroba = form.querySelector('#ventas_cafe-precio_arroba');
+    const precioKilo = form.querySelector('#ventas_cafe-precio_kilo');
+    const kilos = form.querySelector('#ventas_cafe-kilos');
+    const valorBruto = form.querySelector('#ventas_cafe-valor_bruto');
+    const descCooperativa = form.querySelector('#ventas_cafe-desc_cooperativa');
+    const retefuente = form.querySelector('#ventas_cafe-retefuente');
+    const valorNeto = form.querySelector('#ventas_cafe-valor_neto');
+
+    function calcular() {
+        // 1 arroba = 12.5 kg
+        const precioKiloVal = (parseFloat(precioArroba.value) || 0) / 12.5;
+        precioKilo.value = precioKiloVal.toFixed(2);
+
+        const valorBrutoVal = (parseFloat(kilos.value) || 0) * precioKiloVal;
+        valorBruto.value = valorBrutoVal.toFixed(2);
+
+        const valorNetoVal = valorBrutoVal - (parseFloat(descCooperativa.value) || 0) - (parseFloat(retefuente.value) || 0);
+        valorNeto.value = valorNetoVal.toFixed(2);
+    }
+
+    [precioArroba, kilos, descCooperativa, retefuente].forEach(el => {
+        if (el) el.addEventListener('input', calcular);
+    });
+}
+
+// Inicializar todos los sistemas de ventas
+function initVentasSystems() {
+    initVentasTabs();
+    initVentasBananoCalculations();
+    initVentasPlatanosCalculations();
+    initVentasLimonGutierrezCalculations();
+    initVentasLimonNacionalCalculations();
+    initVentasNaranjaCalculations();
+    initVentasCafeCalculations();
+}
+
+// Agregar al DOMContentLoaded existente
+document.addEventListener('DOMContentLoaded', () => {
+    initVentasSystems();
+});
